@@ -75,15 +75,20 @@ class TextParser:
             if self.graph.has_node(i):
                 d.append(int(self.graph.node[i]['frequency']))
         dlen = len(d)
-        nx.draw(self.graph,pos=nx.circular_layout(self.graph), labels = node_labels, node_color='r' ,with_labels=True, node_size=[(v * 200)/(dlen + 5) for v in d])
+        nx.draw(self.graph,pos=nx.circular_layout(self.graph), labels = node_labels, node_color='r' ,with_labels=True, node_size=[(v * 180)/(dlen + 5) for v in d])
 
         edges = self.graph.edges()
         weights = [0.5 * self.graph[u][v]['weight'] for u, v in edges]
         wlen = len(weights)
         colors = range(wlen)
-        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist= edges, width=[(6 * self.graph[u][v]['weight'])/wlen for u, v in edges],edge_cmap=plt.cm.Greens,edge_color=colors)
+        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist= edges, width=[(5 * self.graph[u][v]['weight'])/wlen for u, v in edges],edge_cmap=plt.cm.Greens,edge_color=colors)
         if self.labels:
             nx.draw_networkx_edge_labels(self.graph,pos=nx.circular_layout(self.graph),edge_labels=edge_labels)
+        plt.show(block=True)
+
+    def print_graph_cluster(self):
+        node_labels = nx.get_node_attributes(self.graph, 'name')
+        nx.draw_spring(self.graph, with_labels = True, labels = node_labels)
         plt.show(block=True)
 
     def add_character(self, name):
@@ -107,15 +112,15 @@ class TextParser:
             if current_word in self.character_list:
                 current_name = current_word
                 self.increment_name_frequency(current_name)
-                for activeName in active:
-                    if activeName != current_name:
-                        self.add_edge(activeName, current_name)
+                for active_name in active:
+                    if active_name != current_name:
+                        self.add_edge(active_name, current_name)
                 active[current_name] = 15
-            for activeName in active:
-                active[activeName] -= 1
-            for activeName in active:
-                if active[activeName] == 0:
-                    del active[activeName]
+            for active_name in active:
+                active[active_name] -= 1
+            for active_name in active:
+                if active[active_name] == 0:
+                    del active[active_name]
                     break
 
     def detect_characters(self, file):
