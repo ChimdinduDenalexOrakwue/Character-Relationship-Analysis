@@ -7,7 +7,7 @@ rcParams['figure.figsize'] = 10, 10
 
 class TextParser:
 
-    def __init__(self, inp = False, min_freq = 0, char_lim = float("inf"), labels = False, char_label_limit = 35):
+    def __init__(self, inp = False, min_freq = 40, char_lim = float("inf"), labels = False, char_label_limit = 35):
         self.char_lim = char_lim
         self.min_freq = min_freq
         self.character_list = []
@@ -99,13 +99,9 @@ class TextParser:
 
     def word_is_name(self, line):
         active = {}
-        delimiters = ['\n', ' ', ',', '.', '?', '!', ':']
-        words = line.split()
-        for delimiter in delimiters:
-            new_words = []
-            for word in words:
-                new_words += word.split(delimiter)
-            words = new_words
+        delimiters = ",", " ", ".", "\n", ";", "; ", ": "
+        regex_pattern = '|'.join(map(re.escape, delimiters))
+        words = re.split(regex_pattern, line)
 
         for current_word in words:
             if current_word in self.character_list:
@@ -125,12 +121,19 @@ class TextParser:
     def detect_characters(self, file):
         with open(file) as f:
             lines = f.read().replace('\n', ' ')
-            pattern = '[A-Z][\w]+ said|said [A-Z][\w]+'
-            matches = re.findall(pattern, lines)
-            matches = [word for word in matches if "He" not in word and "She" not in word and "It" not in word and "They" not in word and "You" not in word and "Mr" not in word]
-            for i in range(0, len(matches)):
-                matches[i] = matches[i].replace('said', '')
-                matches[i] = matches[i].strip()
+            past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered', 'yelled', 'announced']
+            matches = []
+
+            for i in range(0, len(past_verbs)):
+                pattern = '[A-Z][\w]+ ' + past_verbs[i] + '|' + past_verbs[i] + ' [A-Z][\w]+'
+                match = re.findall(pattern, lines)
+                for j in range(0, len(match)):
+                    match[j] = match[j].replace(' ' + past_verbs[i], '')
+                    match[j] = match[j].replace(past_verbs[i] + ' ', '')
+                matches.extend(match)
+
+            omitted = set(["He","She","It","They","You","Mr","Mrs","Miss","Lord","Professor","Uncle","Aunt"])
+            matches = [word for word in matches if word not in omitted]
 
             name_set = list(set(matches))
             matches = []
