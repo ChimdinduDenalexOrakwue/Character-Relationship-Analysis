@@ -1,57 +1,58 @@
-import networkx as nx
 import re
+import networkx as nx
 from matplotlib import pyplot as plt
 from pylab import rcParams
+
 rcParams['figure.figsize'] = 10, 10
 
 class TextParser:
 
-    def __init__(self, inp=False, lim = 0,labels = False):
-        while(True):
+    def __init__(self, inp = False, min_freq = 0, char_lim = float("inf"), labels = False, char_label_limit = 35):
+        self.char_lim = char_lim
+        self.min_freq = min_freq
+        self.character_list = []
+        self.labels = labels
+
+        while True:
             try:
-                self.file = input("Input a path to a text file: ")
-                break;
+                self.file = input("INPUT A PATH TO A TEXT FILE: ")
+                if (inp):
+                    self.character_list = self.get_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: "))
+                else:
+                    self.character_list = self.detect_characters(self.file)
+                break
             except FileNotFoundError:
-                print ("This file does not exist.")
-        self.lim = lim
-        self.characterList = []
-        self.labels=labels
+                print ("\nERROR: the file " + self.file + " could not be found.\n")
 
-        if (inp):
-            self.characterList = self.getCharacters(input("Input character names seperated by commas: "))
-        else:
-            self.characterList = self.detectCharacters(self.file)
-
-        if(len(self.characterList) >= 35):
+        if len(self.character_list) >= char_label_limit:
             self.labels = False
 
-        self.graph = self.initializeGraph()
-        self.dict = self.initializeCharacterDict()
-
+        self.graph = self.initialize_graph()
+        self.dict = self.initialize_character_dict()
         return
 
-    def getCharacters(self, name_string):
+    def get_characters(self, name_string):
         list = name_string.split(',')
         return list
 
-    def initializeCharacterDict(self):
+    def initialize_character_dict(self):
         dict = {}
-        for i in range(0, len(self.characterList)):
-            dict[self.characterList[i]] = i
+        for i in range(0, len(self.character_list)):
+            dict[self.character_list[i]] = i
         return dict
 
-    def initializeGraph(self):
+    def initialize_graph(self):
         graph = nx.Graph()
-        for i in range(0, len(self.characterList)):
-            graph.add_node(i, {'name' : self.characterList[i], 'frequency' : 1})
+        for i in range(0, len(self.character_list)):
+            graph.add_node(i, {'name' : self.character_list[i], 'frequency' : 1})
         return graph
 
-    def incrementNameFrequency(self, name, amount = 1):
+    def increment_name_frequency(self, name, amount = 1):
         newFrequency = self.graph.node[self.dict[name]]['frequency'] + amount
         self.graph.node[self.dict[name]]['frequency'] = newFrequency
         return
 
-    def addEdge(self, name1, name2):
+    def add_edge(self, name1, name2):
         if self.graph.has_edge(self.dict[name1], self.dict[name2]):
             newFrequency = self.graph.get_edge_data(self.dict[name1], self.dict[name2])['frequency'] + 1;
             newWeight = self.graph.get_edge_data(self.dict[name1], self.dict[name2])['weight'] + 1;
@@ -61,14 +62,14 @@ class TextParser:
             self.graph.add_edge(self.dict[name1], self.dict[name2], frequency = 1, weight=1)
         return
 
-    def printCharacters(self):
-        print(self.characterList)
+    def print_characters(self):
+        print(self.character_list)
 
-    def printGraph(self):
+    def print_graph(self):
         self.clean()
         node_labels = nx.get_node_attributes(self.graph, 'name')
         edge_labels = nx.get_edge_attributes(self.graph, 'frequency')
-        d=[]
+        d = []
         nodes = self.graph.nodes(data=True)
         for i in range(0, len(self.graph.nodes())):
             if self.graph.has_node(i):
@@ -85,11 +86,11 @@ class TextParser:
             nx.draw_networkx_edge_labels(self.graph,pos=nx.circular_layout(self.graph),edge_labels=edge_labels)
         plt.show(block=True)
 
-    def addCharacter(self, name):
-        self.characterList.append(name)
+    def add_character(self, name):
+        self.character_list.append(name)
         return
 
-    def readFile(self):
+    def read_file(self):
         with open(self.file) as f:
             content = f.readlines()
             for line in content:
@@ -107,12 +108,12 @@ class TextParser:
             words = new_words
 
         for current_word in words:
-            if current_word in self.characterList:
+            if current_word in self.character_list:
                 current_name = current_word
-                self.incrementNameFrequency(current_name)
+                self.increment_name_frequency(current_name)
                 for activeName in active:
                     if activeName != current_name:
-                        self.addEdge(activeName, current_name)
+                        self.add_edge(activeName, current_name)
                 active[current_name] = 15
             for activeName in active:
                 active[activeName] -= 1
@@ -121,12 +122,11 @@ class TextParser:
                     del active[activeName]
                     break
 
-    def detectCharacters(self, file):
+    def detect_characters(self, file):
         with open(file) as f:
             lines = f.read().replace('\n', ' ')
             pattern = '[A-Z][\w]+ said|said [A-Z][\w]+'
             matches = re.findall(pattern, lines)
-            matches = list(set(matches))
             matches = [word for word in matches if "He" not in word and "She" not in word and "It" not in word and "They" not in word and "You" not in word and "Mr" not in word]
             for i in range(0, len(matches)):
                 matches[i] = matches[i].replace('said', '')
@@ -136,15 +136,15 @@ class TextParser:
             matches = []
             for i in range(0,len(name_set)):
                 matches.append(name_set[i])
-                if i >= 80:
+                if i >= self.char_lim:
                     break
         return matches
 
     def clean(self):
         nodes = self.graph.nodes(data=True)
-        toDelete = []
+        to_delete = []
         for i in range(0,len(nodes)):
-            if int(self.graph.node[i]['frequency']) < self.lim:
-                toDelete.append(i)
-        toDelete.reverse()
-        self.graph.remove_nodes_from(toDelete)
+            if int(self.graph.node[i]['frequency']) < self.min_freq:
+                to_delete.append(i)
+        to_delete.reverse()
+        self.graph.remove_nodes_from(to_delete)
