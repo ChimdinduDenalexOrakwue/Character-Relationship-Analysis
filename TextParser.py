@@ -2,8 +2,8 @@ import re
 import networkx as nx
 from matplotlib import pyplot as plt
 from pylab import rcParams
-
 rcParams['figure.figsize'] = 10, 10
+
 
 class TextParser:
 
@@ -32,8 +32,9 @@ class TextParser:
         return
 
     def get_characters(self, name_string):
-        list = name_string.split(',')
-        return list
+        characters = name_string.split(',')
+        characters = [name.strip() for name in characters]
+        return characters
 
     def initialize_character_dict(self):
         dict = {}
@@ -70,7 +71,7 @@ class TextParser:
         node_labels = nx.get_node_attributes(self.graph, 'name')
         edge_labels = nx.get_edge_attributes(self.graph, 'frequency')
         d = []
-        nodes = self.graph.nodes(data=True)
+
         for i in range(0, len(self.graph.nodes())):
             if self.graph.has_node(i):
                 d.append(int(self.graph.node[i]['frequency']))
@@ -78,17 +79,10 @@ class TextParser:
         nx.draw(self.graph,pos=nx.circular_layout(self.graph), labels = node_labels, node_color='r' ,with_labels=True, node_size=[(v * 180)/(dlen + 5) for v in d])
 
         edges = self.graph.edges()
-        weights = [0.5 * self.graph[u][v]['weight'] for u, v in edges]
-        wlen = len(weights)
-        colors = range(wlen)
-        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist= edges, width=[(5 * self.graph[u][v]['weight'])/wlen for u, v in edges],edge_cmap=plt.cm.Greens,edge_color=colors)
+        weights = [self.graph[u][v]['weight'] for u, v in edges]
+        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist= edges, width=[(40 * self.graph[u][v]['weight'])/sum(weights) for u, v in edges],edge_cmap=plt.cm.winter,edge_color=weights)
         if self.labels:
             nx.draw_networkx_edge_labels(self.graph,pos=nx.circular_layout(self.graph),edge_labels=edge_labels)
-        plt.show(block=True)
-
-    def print_graph_cluster(self):
-        node_labels = nx.get_node_attributes(self.graph, 'name')
-        nx.draw_spring(self.graph, with_labels = True, labels = node_labels)
         plt.show(block=True)
 
     def add_character(self, name):
@@ -107,10 +101,14 @@ class TextParser:
         delimiters = ",", " ", ".", "\n", ";", "; ", ": "
         regex_pattern = '|'.join(map(re.escape, delimiters))
         words = re.split(regex_pattern, line)
+        name_list = [name.lower() for name in self.character_list]
 
         for current_word in words:
-            if current_word in self.character_list:
-                current_name = current_word
+            current_name = ""
+            if current_word.lower() in name_list:
+                for i in range(0, len(self.character_list)):
+                    if current_word.lower() == self.character_list[i].lower():
+                        current_name = self.character_list[i]
                 self.increment_name_frequency(current_name)
                 for active_name in active:
                     if active_name != current_name:
@@ -137,7 +135,7 @@ class TextParser:
                     match[j] = match[j].replace(past_verbs[i] + ' ', '')
                 matches.extend(match)
 
-            omitted = set(["He","She","It","They","You","Mr","Mrs","Miss","Lord","Professor","Uncle","Aunt"])
+            omitted = {"He","She","It","They","You","Mr","Mrs","Miss","Lord","Professor","Uncle","Aunt","Then"}
             matches = [word for word in matches if word not in omitted]
 
             name_set = list(set(matches))
