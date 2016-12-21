@@ -124,7 +124,7 @@ class TextParser:
     def detect_characters(self, file):
         with open(file) as f:
             lines = f.read().replace('\n', ' ')
-            past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered', 'yelled', 'announced']
+            past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered', 'yelled', 'announced','muttered','asked','inquired']
             matches = []
 
             for i in range(0, len(past_verbs)):
