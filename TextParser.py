@@ -64,7 +64,7 @@ class TextParser:
         return
 
     def print_characters(self):
-        print(self.character_list)
+        print("POTENTIAL CHARACTERS DETECTED: " + str(self.character_list))
 
     def print_graph(self):
         self.clean()
@@ -98,7 +98,7 @@ class TextParser:
 
     def word_is_name(self, line):
         active = {}
-        delimiters = ",", " ", ".", "\n", ";", "; ", ": "
+        delimiters = ",", " ", ".", "\n", ";", "; ", ": ", "\""
         regex_pattern = '|'.join(map(re.escape, delimiters))
         words = re.split(regex_pattern, line)
         name_list = [name.lower() for name in self.character_list]
@@ -124,7 +124,8 @@ class TextParser:
     def detect_characters(self, file):
         with open(file) as f:
             lines = f.read().replace('\n', ' ')
-            past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered', 'yelled', 'announced','muttered','asked','inquired']
+            past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered',
+                          'yelled', 'announced','muttered','asked','inquired','cried']
             matches = []
 
             for i in range(0, len(past_verbs)):
@@ -135,7 +136,8 @@ class TextParser:
                     match[j] = match[j].replace(past_verbs[i] + ' ', '')
                 matches.extend(match)
 
-            omitted = {"He","She","It","They","You","Mr","Mrs","Miss","Lord","Professor","Uncle","Aunt","Then"}
+            omitted = {"He","She","It","They","You","Mr","Mrs","Miss","Lord"
+                ,"Professor","Uncle","Aunt","Then",'I','We','When','If','Others','Some'}
             matches = [word for word in matches if word not in omitted]
 
             name_set = list(set(matches))
