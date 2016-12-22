@@ -1,9 +1,10 @@
 from TextParser import TextParser as tp
 
-parser = tp(min_freq = 120, labels = True)
+parser = tp(min_freq = 40, labels = True)
 
-parser.add_locations(["Hogwarts","Deathly Hallows"])
-parser.add_objects(["Horcrux","Wand"])
+parser.add_characters([])
+parser.add_locations([])
+parser.add_objects([])
 
 parser.print_characters()
 parser.print_locations()

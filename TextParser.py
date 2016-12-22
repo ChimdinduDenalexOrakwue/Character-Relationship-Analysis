@@ -124,11 +124,11 @@ class TextParser:
             if self.graph.has_node(i):
                 d.append(int(self.graph.node[i]['frequency']))
         dlen = len(d)
-        nx.draw(self.graph, pos=nx.circular_layout(self.graph), labels = node_labels, node_color= [color_map[self.graph.node[node]['category']] for node in self.graph], with_labels=True, node_size=[(v * 180)/(dlen + 5) for v in d])
+        nx.draw(self.graph, pos=nx.circular_layout(self.graph), labels = node_labels, node_color = [color_map[self.graph.node[node]['category']] for node in self.graph], with_labels=True, node_size=[(v * 180)/(dlen + 5) for v in d])
 
         edges = self.graph.edges()
         weights = [self.graph[u][v]['weight'] for u, v in edges]
-        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist= edges, width=[(50 * self.graph[u][v]['weight'])/sum(weights) for u, v in edges],edge_cmap=plt.cm.winter,edge_color=weights)
+        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist = edges, width=[(50 * self.graph[u][v]['weight'])/sum(weights) for u, v in edges],edge_cmap=plt.cm.winter,edge_color=weights)
         if self.labels:
             nx.draw_networkx_edge_labels(self.graph,pos=nx.circular_layout(self.graph),edge_labels=edge_labels)
         plt.show(block=True)
