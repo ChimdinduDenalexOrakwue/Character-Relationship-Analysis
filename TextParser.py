@@ -114,7 +114,7 @@ class TextParser:
 
 
     def print_graph(self):
-        self.clean()
+        self.clean_graph()
         node_labels = nx.get_node_attributes(self.graph, 'name')
         edge_labels = nx.get_edge_attributes(self.graph, 'frequency')
         color_map = {'character': 'r', 'location': '#FF0099', 'object': '#00a1ff'}
@@ -259,7 +259,7 @@ class TextParser:
         return matches
 
 
-    def clean(self):
+    def clean_graph(self):
         nodes = self.graph.nodes(data=True)
         to_delete = []
         for i in range(0,len(nodes)):
