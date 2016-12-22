@@ -8,7 +8,7 @@ rcParams['figure.figsize'] = 10, 10
 class TextParser:
 
     def __init__(self, inp = False, min_freq = 40, char_lim = float("inf"),
-                 labels = False, char_label_lim = 35, file=""):
+                 labels = False, char_label_lim = 40, file=""):
         self.char_lim = char_lim
         self.min_freq = min_freq
         self.character_list = []
@@ -230,7 +230,15 @@ class TextParser:
             past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered',
                           'yelled', 'announced','muttered','asked','inquired','cried','answered',
                           'interposed','suggested','thought','called','added','began','observed',
-                          'echoed','repeated','shrugged','pointed','argued','promised','noted']
+                          'echoed','repeated','shrugged','pointed','argued','promised','noted',
+                          'mentioned','replied','screamed','grumbled','stammered','screeched',
+                          'questioned','pleaded','proclaimed','professed','moaned','spouted',
+                          'surmised','murmured','voiced','urged','wept','rambled','ranted',
+                          'decided','demanded','wailed','chuckled','chanted','boasted','coaxed',
+                          'blurted','lectured','hinted','barked','rebuffed','kissed','ran','walked',
+                          'swung','lifted','charged','sped','crept','restrained','droned','uttered',
+                          'took','yanked','collapsed','tumbled','crumpled','screeched','glided',
+                          'trudged','limped','hesitated','erupted','stampeded']
             matches = []
 
             for i in range(0, len(past_verbs)):
@@ -246,7 +254,8 @@ class TextParser:
                 ,"In","And","On","An","What","His","Her","Have","That","But","Not"
                 ,"This","The","You","Your","Or","My","So","Nearly","Who","YOU","Another"
                 ,"Having","Everyone","One","No","Someone","All","Both","Never","Nobody"
-                ,"Did","Such","At","Other","Their","Our","By"}
+                ,"Did","Such","At","Other","Their","Our","By","Nothing","Which","Where"
+                ,"Were","Here","Well"}
 
             matches = [word for word in matches if word not in omitted]
 
