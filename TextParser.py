@@ -139,13 +139,28 @@ class TextParser:
         return
 
 
+    def add_characters(self, name):
+        self.character_list.extend(name)
+        return
+
+
     def add_location(self, location):
         self.location_list.append(location)
         return
 
 
+    def add_locations(self, location):
+        self.location_list.extend(location)
+        return
+
+
     def add_object(self, obj):
         self.object_list.append(obj)
+        return
+
+
+    def add_objects(self, obj):
+        self.object_list.extend(obj)
         return
 
 
