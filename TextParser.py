@@ -2,34 +2,45 @@ import re
 import networkx as nx
 from matplotlib import pyplot as plt
 from pylab import rcParams
+import requests
 rcParams['figure.figsize'] = 10, 10
 
 
 class TextParser:
 
-    def __init__(self, inp = False, min_freq = 40, char_lim = float("inf"), labels = False, char_label_limit = 35):
+    def __init__(self, inp = False, min_freq = 40, char_lim = float("inf"),
+                 labels = False, char_label_lim = 35, file=""):
         self.char_lim = char_lim
         self.min_freq = min_freq
         self.character_list = []
         self.labels = labels
+        self.file = file
+        self.char_label_lim = char_label_lim
 
-        while True:
+        if len(file) > 0:
             try:
-                self.file = input("INPUT A PATH TO A TEXT FILE: ")
                 if (inp):
                     self.character_list = self.get_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: "))
                 else:
                     self.character_list = self.detect_characters(self.file)
-                break
             except FileNotFoundError:
-                print ("\nERROR: the file " + self.file + " could not be found.\n")
-
-        if len(self.character_list) >= char_label_limit:
-            self.labels = False
+                print("\nERROR: the file " + self.file + " could not be found.\n")
+        else:
+            while True:
+                try:
+                    self.file = input("INPUT A PATH TO A TEXT FILE: ")
+                    if (inp):
+                        self.character_list = self.get_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: "))
+                    else:
+                        self.character_list = self.detect_characters(self.file)
+                    break
+                except FileNotFoundError:
+                    print ("\nERROR: the file " + self.file + " could not be found.\n")
 
         self.graph = self.initialize_graph()
         self.dict = self.initialize_character_dict()
         return
+
 
     def get_characters(self, name_string):
         characters = name_string.split(',')
@@ -42,16 +53,19 @@ class TextParser:
             dict[self.character_list[i]] = i
         return dict
 
+
     def initialize_graph(self):
         graph = nx.Graph()
         for i in range(0, len(self.character_list)):
             graph.add_node(i, {'name' : self.character_list[i], 'frequency' : 1})
         return graph
 
+
     def increment_name_frequency(self, name, amount = 1):
         newFrequency = self.graph.node[self.dict[name]]['frequency'] + amount
         self.graph.node[self.dict[name]]['frequency'] = newFrequency
         return
+
 
     def add_edge(self, name1, name2):
         if self.graph.has_edge(self.dict[name1], self.dict[name2]):
@@ -63,8 +77,10 @@ class TextParser:
             self.graph.add_edge(self.dict[name1], self.dict[name2], frequency = 1, weight=1)
         return
 
+
     def print_characters(self):
         print("POTENTIAL CHARACTERS DETECTED: " + str(self.character_list))
+
 
     def print_graph(self):
         self.clean()
@@ -80,14 +96,16 @@ class TextParser:
 
         edges = self.graph.edges()
         weights = [self.graph[u][v]['weight'] for u, v in edges]
-        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist= edges, width=[(40 * self.graph[u][v]['weight'])/sum(weights) for u, v in edges],edge_cmap=plt.cm.winter,edge_color=weights)
+        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist= edges, width=[(50 * self.graph[u][v]['weight'])/sum(weights) for u, v in edges],edge_cmap=plt.cm.winter,edge_color=weights)
         if self.labels:
             nx.draw_networkx_edge_labels(self.graph,pos=nx.circular_layout(self.graph),edge_labels=edge_labels)
         plt.show(block=True)
 
+
     def add_character(self, name):
         self.character_list.append(name)
         return
+
 
     def read_file(self):
         with open(self.file) as f:
@@ -95,6 +113,7 @@ class TextParser:
             for line in content:
                 self.word_is_name(line)
         return
+
 
     def word_is_name(self, line):
         active = {}
@@ -121,6 +140,7 @@ class TextParser:
                     del active[active_name]
                     break
 
+
     def detect_characters(self, file):
         with open(file) as f:
             lines = f.read().replace('\n', ' ')
@@ -137,7 +157,11 @@ class TextParser:
                 matches.extend(match)
 
             omitted = {"He","She","It","They","You","Mr","Mrs","Miss","Lord"
-                ,"Professor","Uncle","Aunt","Then",'I','We','When','If','Others','Some'}
+                ,"Professor","Uncle","Aunt","Then",'I','We','When','If','Others','Some'
+                ,"In","And","On","An","What","His","Her","Have","That","But","Not"
+                ,"This","The","You","Your","Or","My","So","Nearly","Who","YOU","Another"
+                ,"Having","Everyone","One","No","Someone","All","Both"}
+
             matches = [word for word in matches if word not in omitted]
 
             name_set = list(set(matches))
@@ -148,6 +172,7 @@ class TextParser:
                     break
         return matches
 
+
     def clean(self):
         nodes = self.graph.nodes(data=True)
         to_delete = []
@@ -156,3 +181,6 @@ class TextParser:
                 to_delete.append(i)
         to_delete.reverse()
         self.graph.remove_nodes_from(to_delete)
+
+        if self.graph.size() >= self.char_label_lim:
+            self.labels = False
