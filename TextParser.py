@@ -2,7 +2,6 @@ import re
 import networkx as nx
 from matplotlib import pyplot as plt
 from pylab import rcParams
-import requests
 rcParams['figure.figsize'] = 10, 10
 
 
@@ -13,6 +12,8 @@ class TextParser:
         self.char_lim = char_lim
         self.min_freq = min_freq
         self.character_list = []
+        self.location_list = []
+        self.object_list = []
         self.labels = labels
         self.file = file
         self.char_label_lim = char_label_lim
@@ -37,8 +38,6 @@ class TextParser:
                 except FileNotFoundError:
                     print ("\nERROR: the file " + self.file + " could not be found.\n")
 
-        self.graph = self.initialize_graph()
-        self.dict = self.initialize_character_dict()
         return
 
 
@@ -47,17 +46,41 @@ class TextParser:
         characters = [name.strip() for name in characters]
         return characters
 
-    def initialize_character_dict(self):
+    def initialize_dict(self):
         dict = {}
+        dict_counter = 0
+
         for i in range(0, len(self.character_list)):
-            dict[self.character_list[i]] = i
+            dict[self.character_list[i]] = dict_counter
+            dict_counter += 1
+
+        for i in range(0, len(self.location_list)):
+            dict[self.location_list[i]] = dict_counter
+            dict_counter += 1
+
+        for i in range(0, len(self.object_list)):
+            dict[self.object_list[i]] = dict_counter
+            dict_counter += 1
+
         return dict
 
 
     def initialize_graph(self):
         graph = nx.Graph()
+        node_counter = 0
+
         for i in range(0, len(self.character_list)):
-            graph.add_node(i, {'name' : self.character_list[i], 'frequency' : 1})
+            graph.add_node(node_counter, {'name' : self.character_list[i], 'frequency' : 1, 'category' : 'character'})
+            node_counter += 1
+
+        for i in range(0, len(self.location_list)):
+            graph.add_node(node_counter, {'name' : self.location_list[i], 'frequency' : 1, 'category' : 'location'})
+            node_counter += 1
+
+        for i in range(0, len(self.object_list)):
+            graph.add_node(node_counter, {'name' : self.object_list[i], 'frequency' : 1, 'category' : 'object'})
+            node_counter += 1
+
         return graph
 
 
@@ -79,20 +102,29 @@ class TextParser:
 
 
     def print_characters(self):
-        print("POTENTIAL CHARACTERS DETECTED: " + str(self.character_list))
+        print("CHARACTER LIST: " + str(self.character_list))
+
+
+    def print_locations(self):
+        print("LOCATION LIST: " + str(self.location_list))
+
+
+    def print_objects(self):
+        print("OBJECT LIST: " + str(self.object_list))
 
 
     def print_graph(self):
         self.clean()
         node_labels = nx.get_node_attributes(self.graph, 'name')
         edge_labels = nx.get_edge_attributes(self.graph, 'frequency')
+        color_map = {'character': 'r', 'location': '#FF0099', 'object': '#00a1ff'}
         d = []
 
         for i in range(0, len(self.graph.nodes())):
             if self.graph.has_node(i):
                 d.append(int(self.graph.node[i]['frequency']))
         dlen = len(d)
-        nx.draw(self.graph,pos=nx.circular_layout(self.graph), labels = node_labels, node_color='r' ,with_labels=True, node_size=[(v * 180)/(dlen + 5) for v in d])
+        nx.draw(self.graph, pos=nx.circular_layout(self.graph), labels = node_labels, node_color= [color_map[self.graph.node[node]['category']] for node in self.graph], with_labels=True, node_size=[(v * 180)/(dlen + 5) for v in d])
 
         edges = self.graph.edges()
         weights = [self.graph[u][v]['weight'] for u, v in edges]
@@ -107,20 +139,34 @@ class TextParser:
         return
 
 
-    def read_file(self):
-        with open(self.file) as f:
-            content = f.readlines()
-            for line in content:
-                self.word_is_name(line)
+    def add_location(self, location):
+        self.location_list.append(location)
         return
 
 
-    def word_is_name(self, line):
+    def add_object(self, obj):
+        self.object_list.append(obj)
+        return
+
+
+    def read_file(self):
+        self.graph = self.initialize_graph()
+        self.dict = self.initialize_dict()
+
+        with open(self.file) as f:
+            content = f.readlines()
+            for line in content:
+                self.parse_line(line)
+        return
+
+    def parse_line(self, line):
         active = {}
         delimiters = ",", " ", ".", "\n", ";", "; ", ": ", "\""
         regex_pattern = '|'.join(map(re.escape, delimiters))
         words = re.split(regex_pattern, line)
-        name_list = [name.lower() for name in self.character_list]
+        name_list = set([name.lower() for name in self.character_list])
+        location_list = set([location.lower() for location in self.location_list])
+        object_list = set([obj.lower() for obj in self.object_list])
 
         for current_word in words:
             current_name = ""
@@ -133,8 +179,30 @@ class TextParser:
                     if active_name != current_name:
                         self.add_edge(active_name, current_name)
                 active[current_name] = 15
+
+            if current_word.lower() in location_list:
+                for i in range(0, len(self.location_list)):
+                    if current_word.lower() == self.location_list[i].lower():
+                        current_name = self.location_list[i]
+                self.increment_name_frequency(current_name)
+                for active_name in active:
+                    if active_name != current_name:
+                        self.add_edge(active_name, current_name)
+                active[current_name] = 15
+
+            if current_word.lower() in object_list:
+                for i in range(0, len(self.object_list)):
+                    if current_word.lower() == self.object_list[i].lower():
+                        current_name = self.object_list[i]
+                self.increment_name_frequency(current_name)
+                for active_name in active:
+                    if active_name != current_name:
+                        self.add_edge(active_name, current_name)
+                active[current_name] = 15
+
             for active_name in active:
                 active[active_name] -= 1
+
             for active_name in active:
                 if active[active_name] == 0:
                     del active[active_name]
@@ -145,7 +213,9 @@ class TextParser:
         with open(file) as f:
             lines = f.read().replace('\n', ' ')
             past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered',
-                          'yelled', 'announced','muttered','asked','inquired','cried']
+                          'yelled', 'announced','muttered','asked','inquired','cried','answered',
+                          'interposed','suggested','thought','called','added','began','observed',
+                          'echoed','repeated','shrugged','pointed','argued','promised','noted']
             matches = []
 
             for i in range(0, len(past_verbs)):
@@ -160,7 +230,8 @@ class TextParser:
                 ,"Professor","Uncle","Aunt","Then",'I','We','When','If','Others','Some'
                 ,"In","And","On","An","What","His","Her","Have","That","But","Not"
                 ,"This","The","You","Your","Or","My","So","Nearly","Who","YOU","Another"
-                ,"Having","Everyone","One","No","Someone","All","Both"}
+                ,"Having","Everyone","One","No","Someone","All","Both","Never","Nobody"
+                ,"Did","Such","At","Other","Their","Our","By"}
 
             matches = [word for word in matches if word not in omitted]
 
@@ -177,7 +248,7 @@ class TextParser:
         nodes = self.graph.nodes(data=True)
         to_delete = []
         for i in range(0,len(nodes)):
-            if int(self.graph.node[i]['frequency']) < self.min_freq:
+            if int(self.graph.node[i]['frequency']) < self.min_freq and self.graph.node[i]['category'] == 'character':
                 to_delete.append(i)
         to_delete.reverse()
         self.graph.remove_nodes_from(to_delete)
