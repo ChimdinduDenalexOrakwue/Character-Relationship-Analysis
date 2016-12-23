@@ -8,40 +8,24 @@ rcParams['figure.figsize'] = 10, 10
 class TextParser:
 
     def __init__(self, inp = False, min_freq = 40, char_lim = float("inf"),
-                 labels = False, char_label_lim = 40, file=""):
+                 labels = False, char_label_lim = 40):
         self.char_lim = char_lim
         self.min_freq = min_freq
         self.character_list = []
         self.location_list = []
         self.object_list = []
         self.labels = labels
-        self.file = file
+        self.file = None
+        self.inp = inp
         self.char_label_lim = char_label_lim
-
-        if len(file) > 0:
-            try:
-                if (inp):
-                    self.character_list = self.get_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: "))
-                else:
-                    self.character_list = self.detect_characters(self.file)
-            except FileNotFoundError:
-                print("\nERROR: the file " + self.file + " could not be found.\n")
-        else:
-            while True:
-                try:
-                    self.file = input("INPUT A PATH TO A TEXT FILE: ")
-                    if (inp):
-                        self.character_list = self.get_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: "))
-                    else:
-                        self.character_list = self.detect_characters(self.file)
-                    break
-                except FileNotFoundError:
-                    print ("\nERROR: the file " + self.file + " could not be found.\n")
-
         return
 
 
     def get_characters(self, name_string):
+        if name_string == None:
+            return []
+        if len(name_string) == 0:
+            return []
         characters = name_string.split(',')
         characters = [name.strip() for name in characters]
         return characters
@@ -139,9 +123,12 @@ class TextParser:
         return
 
 
-    def add_characters(self, name):
-        self.character_list.extend(name)
-        return
+    def add_characters(self, names):
+        if names != None:
+            self.character_list.extend(names)
+            return self.character_list
+        else:
+            return self.character_list
 
 
     def add_location(self, location):
@@ -149,8 +136,8 @@ class TextParser:
         return
 
 
-    def add_locations(self, location):
-        self.location_list.extend(location)
+    def add_locations(self, locations):
+        self.location_list.extend(locations)
         return
 
 
@@ -159,12 +146,33 @@ class TextParser:
         return
 
 
-    def add_objects(self, obj):
-        self.object_list.extend(obj)
+    def add_objects(self, objs):
+        self.object_list.extend(objs)
         return
 
 
-    def read_file(self):
+    def read_file(self, file=None):
+        if file != None:
+            self.file = file
+            try:
+                if (self.inp):
+                    self.character_list = self.add_characters(self.get_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
+                else:
+                    self.character_list = self.detect_characters(self.file)
+            except FileNotFoundError:
+                print("\nERROR: the file " + self.file + " could not be found.\n")
+        else:
+            while True:
+                try:
+                    self.file = input("INPUT A PATH TO A TEXT FILE: ")
+                    if (self.inp):
+                        self.character_list = self.add_characters(self.get_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
+                    else:
+                        self.character_list = self.detect_characters(self.file)
+                    break
+                except FileNotFoundError:
+                    print ("\nERROR: the file " + self.file + " could not be found.\n")
+
         self.graph = self.initialize_graph()
         self.dict = self.initialize_dict()
 
@@ -203,7 +211,7 @@ class TextParser:
                 for active_name in active:
                     if active_name != current_name:
                         self.add_edge(active_name, current_name)
-                active[current_name] = 15
+                active[current_name] = 30
 
             if current_word.lower() in object_list:
                 for i in range(0, len(self.object_list)):
@@ -213,7 +221,7 @@ class TextParser:
                 for active_name in active:
                     if active_name != current_name:
                         self.add_edge(active_name, current_name)
-                active[current_name] = 15
+                active[current_name] = 20
 
             for active_name in active:
                 active[active_name] -= 1
@@ -238,7 +246,7 @@ class TextParser:
                           'blurted','lectured','hinted','barked','rebuffed','kissed','ran','walked',
                           'swung','lifted','charged','sped','crept','restrained','droned','uttered',
                           'took','yanked','collapsed','tumbled','crumpled','screeched','glided',
-                          'trudged','limped','hesitated','erupted','stampeded']
+                          'trudged','limped','hesitated','erupted','stampeded','created']
             matches = []
 
             for i in range(0, len(past_verbs)):
@@ -255,7 +263,7 @@ class TextParser:
                 ,"This","The","You","Your","Or","My","So","Nearly","Who","YOU","Another"
                 ,"Having","Everyone","One","No","Someone","All","Both","Never","Nobody"
                 ,"Did","Such","At","Other","Their","Our","By","Nothing","Which","Where"
-                ,"Were","Here","Well"}
+                ,"Were","Here","Well","Do","Either","Mother","Father"}
 
             matches = [word for word in matches if word not in omitted]
 
