@@ -6,7 +6,7 @@ parser.add_characters([])
 parser.add_locations([])
 parser.add_objects([])
 
-parser.read_file(file="texts/enter-file-name.txt")
+parser.read_file()
 
 parser.print_characters()
 parser.print_locations()

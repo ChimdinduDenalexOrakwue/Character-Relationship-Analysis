@@ -133,22 +133,22 @@ class TextParser:
 
     def add_location(self, location):
         self.location_list.append(location)
-        return
+        return self.location_list
 
 
     def add_locations(self, locations):
         self.location_list.extend(locations)
-        return
+        return self.location_list
 
 
     def add_object(self, obj):
         self.object_list.append(obj)
-        return
+        return self.object_list
 
 
     def add_objects(self, objs):
         self.object_list.extend(objs)
-        return
+        return self.object_list
 
 
     def read_file(self, file=None):
@@ -181,6 +181,7 @@ class TextParser:
             for line in content:
                 self.parse_line(line)
         return
+
 
     def parse_line(self, line):
         active = {}
@@ -219,7 +220,7 @@ class TextParser:
                         current_name = self.object_list[i]
                 self.increment_name_frequency(current_name)
                 for active_name in active:
-                    if active_name != current_name:
+                    if active_name.lower() != current_name.lower():
                         self.add_edge(active_name, current_name)
                 active[current_name] = 20
 
@@ -246,7 +247,7 @@ class TextParser:
                           'blurted','lectured','hinted','barked','rebuffed','kissed','ran','walked',
                           'swung','lifted','charged','sped','crept','restrained','droned','uttered',
                           'took','yanked','collapsed','tumbled','crumpled','screeched','glided',
-                          'trudged','limped','hesitated','erupted','stampeded','created']
+                          'trudged','limped','hesitated','erupted','stampeded','created','started']
             matches = []
 
             for i in range(0, len(past_verbs)):
@@ -273,6 +274,7 @@ class TextParser:
                 matches.append(name_set[i])
                 if i >= self.char_lim:
                     break
+
         return matches
 
 
@@ -287,3 +289,17 @@ class TextParser:
 
         if self.graph.size() >= self.char_label_lim:
             self.labels = False
+
+    def get_frequency(self, name):
+        if self.graph == None:
+            return 0
+        if name not in self.dict:
+            return 0
+        return int(self.graph.node[self.dict[name]]['frequency'])
+
+    def get_num_connections(self, name_one, name_two):
+        if self.graph == None:
+            return 0
+        if name_one not in self.dict or name_two not in self.dict:
+            return 0
+        return int(self.graph.get_edge_data(self.dict[name_one], self.dict[name_two])['frequency'])
