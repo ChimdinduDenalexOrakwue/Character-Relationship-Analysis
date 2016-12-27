@@ -305,7 +305,7 @@ class TextParser:
             return 0
         return int(self.graph.get_edge_data(self.dict[name_one], self.dict[name_two])['frequency'])
 
-    def print_shortest_path(self, name_one, name_two):
+    def get_shortest_path(self, name_one, name_two):
         if self.graph == None:
             return []
         elif name_one not in self.dict or name_two not in self.dict:
