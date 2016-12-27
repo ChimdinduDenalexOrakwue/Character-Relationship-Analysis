@@ -212,7 +212,7 @@ class TextParser:
                 for active_name in active:
                     if active_name != current_name:
                         self.add_edge(active_name, current_name)
-                active[current_name] = 30
+                active[current_name] = 40
 
             if current_word.lower() in object_list:
                 for i in range(0, len(self.object_list)):
@@ -222,7 +222,7 @@ class TextParser:
                 for active_name in active:
                     if active_name.lower() != current_name.lower():
                         self.add_edge(active_name, current_name)
-                active[current_name] = 20
+                active[current_name] = 30
 
             for active_name in active:
                 active[active_name] -= 1
@@ -247,7 +247,8 @@ class TextParser:
                           'blurted','lectured','hinted','barked','rebuffed','kissed','ran','walked',
                           'swung','lifted','charged','sped','crept','restrained','droned','uttered',
                           'took','yanked','collapsed','tumbled','crumpled','screeched','glided',
-                          'trudged','limped','hesitated','erupted','stampeded','created','started']
+                          'trudged','limped','hesitated','erupted','stampeded','created','started',
+                          'created','initiated','ended']
             matches = []
 
             for i in range(0, len(past_verbs)):
@@ -303,3 +304,13 @@ class TextParser:
         if name_one not in self.dict or name_two not in self.dict:
             return 0
         return int(self.graph.get_edge_data(self.dict[name_one], self.dict[name_two])['frequency'])
+
+    def print_shortest_path(self, name_one, name_two):
+        if self.graph == None:
+            return []
+        elif name_one not in self.dict or name_two not in self.dict:
+            return []
+        else:
+            num_path = nx.shortest_path(self.graph, source=self.dict[name_one], target=self.dict[name_two], weight=None)
+            path = [self.graph.node[i]['name'] for i in num_path]
+            return path
