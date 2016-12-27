@@ -238,7 +238,7 @@ class TextParser:
             lines = f.read().replace('\n', ' ')
             past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered',
                           'yelled', 'announced','muttered','asked','inquired','cried','answered',
-                          'interposed','suggested','thought','called','added','began','observed',
+                          'interposed','interrupted','suggested','thought','called','added','began','observed',
                           'echoed','repeated','shrugged','pointed','argued','promised','noted',
                           'mentioned','replied','screamed','grumbled','stammered','screeched',
                           'questioned','pleaded','proclaimed','professed','moaned','spouted',
@@ -248,7 +248,7 @@ class TextParser:
                           'swung','lifted','charged','sped','crept','restrained','droned','uttered',
                           'took','yanked','collapsed','tumbled','crumpled','screeched','glided',
                           'trudged','limped','hesitated','erupted','stampeded','created','started',
-                          'created','initiated','ended']
+                          'created','initiated','ended','chided','reached']
             matches = []
 
             for i in range(0, len(past_verbs)):
@@ -265,7 +265,7 @@ class TextParser:
                 ,"This","The","You","Your","Or","My","So","Nearly","Who","YOU","Another"
                 ,"Having","Everyone","One","No","Someone","All","Both","Never","Nobody"
                 ,"Did","Such","At","Other","Their","Our","By","Nothing","Which","Where"
-                ,"Were","Here","Well","Do","Either","Mother","Father"}
+                ,"Were","Here","Well","Do","Either"}
 
             matches = [word for word in matches if word not in omitted]
 
