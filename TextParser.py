@@ -333,19 +333,20 @@ class TextParser:
     def get_objects(self):
         return self.object_list
 
-    def save_graph(self, directory = '', form = 'gml', name = 'character_graph', compressed = False, compression_format = 'gz'):
-        name = directory + name + form
+    def save_graph(self, directory = '', form = 'png', name = 'character_graph', compressed = False, compression_format = 'gz'):
+        name = directory + '//' + name + form
         if compressed:
             name = name + compression_format
 
         if form == 'gml':
             nx.write_gml(self.graph, name)
         elif form == 'png':
-            plt.savefig(name)
+            self.plot.savefig(name)
         elif form == 'pdf':
-            plt.savefig(name, format='pdf')
+            self.plot.savefig(name, format='pdf')
         elif form == 'eps':
-            plt.savefig(name, format='eps')
+            self.plot.savefig(name, format='eps')
         elif form == 'svg':
-            plt.savefig(name, format='svg')
+            self.plot.savefig(name, format='svg')
+
         return
