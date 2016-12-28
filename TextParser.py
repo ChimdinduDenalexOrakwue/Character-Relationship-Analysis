@@ -1,9 +1,6 @@
 import re
 import networkx as nx
 from matplotlib import pyplot as plt
-from pylab import rcParams
-rcParams['figure.figsize'] = 12, 12
-
 
 class TextParser:
 
@@ -18,10 +15,12 @@ class TextParser:
         self.file = None
         self.inp = inp
         self.char_label_lim = char_label_lim
+        self.plot = plt.figure(figsize=(11,11))
+        self.subplot = self.plot.add_subplot(1,1,1)
         return
 
 
-    def get_characters(self, name_string):
+    def parse_characters(self, name_string):
         if name_string == None:
             return []
         if len(name_string) == 0:
@@ -29,6 +28,7 @@ class TextParser:
         characters = name_string.split(',')
         characters = [name.strip() for name in characters]
         return characters
+
 
     def initialize_dict(self):
         dict = {}
@@ -84,20 +84,16 @@ class TextParser:
             self.graph.add_edge(self.dict[name1], self.dict[name2], frequency = 1, weight=1)
         return
 
-
     def print_characters(self):
         print("CHARACTER LIST: " + str(self.character_list))
-
 
     def print_locations(self):
         print("LOCATION LIST: " + str(self.location_list))
 
-
     def print_objects(self):
         print("OBJECT LIST: " + str(self.object_list))
 
-
-    def print_graph(self):
+    def print_graph(self, show = True):
         self.clean_graph()
         node_labels = nx.get_node_attributes(self.graph, 'name')
         edge_labels = nx.get_edge_attributes(self.graph, 'frequency')
@@ -110,18 +106,20 @@ class TextParser:
         dlen = len(d)
         nx.draw(self.graph, pos=nx.circular_layout(self.graph), labels = node_labels,
                 node_color = [color_map[self.graph.node[node]['category']] for node in self.graph], with_labels=True,
-                node_size=[(v * 180)/(dlen + 5) for v in d])
+                node_size=[(v * 180)/(dlen + 5) for v in d], ax= self.subplot)
 
         edges = self.graph.edges()
         weights = [self.graph[u][v]['weight'] for u, v in edges]
         nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist = edges,
                                width=[(50 * self.graph[u][v]['weight'])/sum(weights) for u, v in edges],
-                               edge_cmap=plt.cm.winter,edge_color=weights)
+                               edge_cmap=plt.cm.winter,edge_color=weights, ax= self.subplot)
 
         if self.labels:
-            nx.draw_networkx_edge_labels(self.graph,pos=nx.circular_layout(self.graph),edge_labels=edge_labels)
+            nx.draw_networkx_edge_labels(self.graph,pos=nx.circular_layout(self.graph),
+                                         edge_labels=edge_labels, ax= self.subplot)
 
-        plt.show(block=True)
+        if show:
+            plt.show()
 
 
     def add_character(self, name):
@@ -162,7 +160,7 @@ class TextParser:
             self.file = file
             try:
                 if (self.inp):
-                    self.character_list = self.add_characters(self.get_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
+                    self.character_list = self.add_characters(self.parse_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
                 else:
                     self.character_list = self.detect_characters(self.file)
             except FileNotFoundError:
@@ -172,7 +170,7 @@ class TextParser:
                 try:
                     self.file = input("INPUT A PATH TO A TEXT FILE: ")
                     if (self.inp):
-                        self.character_list = self.add_characters(self.get_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
+                        self.character_list = self.add_characters(self.parse_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
                     else:
                         self.character_list = self.detect_characters(self.file)
                     break
@@ -284,7 +282,6 @@ class TextParser:
 
         return matches
 
-
     def clean_graph(self):
         nodes = self.graph.nodes(data=True)
         to_delete = []
@@ -323,3 +320,32 @@ class TextParser:
             num_path = nx.shortest_path(self.graph, source=self.dict[name_one], target=self.dict[name_two], weight=None)
             path = [self.graph.node[i]['name'] for i in num_path]
             return path
+
+    def get_graph(self):
+        return self.graph
+
+    def get_characters(self):
+        return self.character_list
+
+    def get_locations(self):
+        return self.location_list
+
+    def get_objects(self):
+        return self.object_list
+
+    def save_graph(self, directory = '', form = 'gml', name = 'character_graph', compressed = False, compression_format = 'gz'):
+        name = directory + name + form
+        if compressed:
+            name = name + compression_format
+
+        if form == 'gml':
+            nx.write_gml(self.graph, name)
+        elif form == 'png':
+            plt.savefig(name)
+        elif form == 'pdf':
+            plt.savefig(name, format='pdf')
+        elif form == 'eps':
+            plt.savefig(name, format='eps')
+        elif form == 'svg':
+            plt.savefig(name, format='svg')
+        return
