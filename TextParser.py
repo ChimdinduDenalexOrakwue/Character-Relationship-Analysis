@@ -334,7 +334,7 @@ class TextParser:
         return self.object_list
 
     def save_graph(self, directory = '', form = 'png', name = 'character_graph', compressed = False, compression_format = 'gz'):
-        name = directory + '//' + name
+        name = directory + '//' + name + '.' + form
         if compressed:
             name = name + compression_format
 

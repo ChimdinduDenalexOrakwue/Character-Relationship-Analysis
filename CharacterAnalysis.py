@@ -13,4 +13,4 @@ parser.print_locations()
 parser.print_objects()
 #print("SHORTEST PATH: " + str(parser.get_shortest_path("", "")))
 parser.print_graph(show=True)
-#parser.save_graph(directory="", form ='png') #show = False on print_graph required to save currently
+#parser.save_graph(directory="", form ='png')
