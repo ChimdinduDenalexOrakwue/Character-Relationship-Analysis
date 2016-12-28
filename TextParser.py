@@ -348,5 +348,4 @@ class TextParser:
             self.plot.savefig(name, format='eps')
         elif form == 'svg':
             self.plot.savefig(name, format='svg')
-
         return
