@@ -2,7 +2,7 @@ import re
 import networkx as nx
 from matplotlib import pyplot as plt
 from pylab import rcParams
-rcParams['figure.figsize'] = 10, 10
+rcParams['figure.figsize'] = 12, 12
 
 
 class TextParser:
@@ -108,13 +108,19 @@ class TextParser:
             if self.graph.has_node(i):
                 d.append(int(self.graph.node[i]['frequency']))
         dlen = len(d)
-        nx.draw(self.graph, pos=nx.circular_layout(self.graph), labels = node_labels, node_color = [color_map[self.graph.node[node]['category']] for node in self.graph], with_labels=True, node_size=[(v * 180)/(dlen + 5) for v in d])
+        nx.draw(self.graph, pos=nx.circular_layout(self.graph), labels = node_labels,
+                node_color = [color_map[self.graph.node[node]['category']] for node in self.graph], with_labels=True,
+                node_size=[(v * 180)/(dlen + 5) for v in d])
 
         edges = self.graph.edges()
         weights = [self.graph[u][v]['weight'] for u, v in edges]
-        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist = edges, width=[(50 * self.graph[u][v]['weight'])/sum(weights) for u, v in edges],edge_cmap=plt.cm.winter,edge_color=weights)
+        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist = edges,
+                               width=[(50 * self.graph[u][v]['weight'])/sum(weights) for u, v in edges],
+                               edge_cmap=plt.cm.winter,edge_color=weights)
+
         if self.labels:
             nx.draw_networkx_edge_labels(self.graph,pos=nx.circular_layout(self.graph),edge_labels=edge_labels)
+
         plt.show(block=True)
 
 
@@ -237,7 +243,7 @@ class TextParser:
         with open(file) as f:
             lines = f.read().replace('\n', ' ')
             past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered',
-                          'yelled', 'announced','muttered','asked','inquired','cried','answered',
+                          'yelled','yelped', 'announced','muttered','asked','inquired','cried','answered',
                           'interposed','interrupted','suggested','thought','called','added','began','observed',
                           'echoed','repeated','shrugged','pointed','argued','promised','noted',
                           'mentioned','replied','screamed','grumbled','stammered','screeched',
@@ -248,7 +254,7 @@ class TextParser:
                           'swung','lifted','charged','sped','crept','restrained','droned','uttered',
                           'took','yanked','collapsed','tumbled','crumpled','screeched','glided',
                           'trudged','limped','hesitated','erupted','stampeded','created','started',
-                          'created','initiated','ended','chided','reached']
+                          'created','initiated','ended','chided','reached','glanced']
             matches = []
 
             for i in range(0, len(past_verbs)):
@@ -265,7 +271,7 @@ class TextParser:
                 ,"This","The","You","Your","Or","My","So","Nearly","Who","YOU","Another"
                 ,"Having","Everyone","One","No","Someone","All","Both","Never","Nobody"
                 ,"Did","Such","At","Other","Their","Our","By","Nothing","Which","Where"
-                ,"Were","Here","Well","Do","Either"}
+                ,"Were","Here","Well","Do","Either","There","Now"}
 
             matches = [word for word in matches if word not in omitted]
 
@@ -304,6 +310,9 @@ class TextParser:
         if name_one not in self.dict or name_two not in self.dict:
             return 0
         return int(self.graph.get_edge_data(self.dict[name_one], self.dict[name_two])['frequency'])
+
+    def get_num_characters(self):
+        return len(self.character_list)
 
     def get_shortest_path(self, name_one, name_two):
         if self.graph == None:
