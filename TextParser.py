@@ -15,7 +15,7 @@ class TextParser:
         self.file = None
         self.inp = inp
         self.char_label_lim = char_label_lim
-        self.plot = plt.figure(figsize=(11,11))
+        self.plot = plt.figure(figsize=(12,12))
         self.subplot = self.plot.add_subplot(1,1,1)
         return
 
