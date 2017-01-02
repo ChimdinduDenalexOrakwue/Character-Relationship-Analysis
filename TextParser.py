@@ -2,26 +2,28 @@ import re
 import networkx as nx
 from matplotlib import pyplot as plt
 
-class TextParser:
 
-    def __init__(self, inp = False, min_freq = 40, char_lim = float("inf"),
-                 labels = False, char_label_lim = 40):
-        self.char_lim = char_lim
-        self.min_freq = min_freq
-        self.character_list = []
-        self.location_list = []
-        self.object_list = []
-        self.labels = labels
-        self.file = None
-        self.inp = inp
-        self.char_label_lim = char_label_lim
-        self.plot = plt.figure(figsize=(12,12))
-        self.subplot = self.plot.add_subplot(1,1,1)
+class TextParser:
+    def __init__(self, inp=False, min_freq=40, char_lim=float("inf"),
+                 labels=False, char_label_lim=40):
+        self.__char_lim = char_lim
+        self.__min_freq = min_freq
+        self.__character_list = []
+        self.__location_list = []
+        self.__object_list = []
+        self.__labels = labels
+        self.__file = None
+        self.__inp = inp
+        self.__graph = None
+        self.__dict = None
+        self.__char_label_lim = char_label_lim
+        self.__plot = plt.figure(figsize=(12, 12))
+        self.__subplot = self.__plot.add_subplot(1, 1, 1)
         return
 
-
-    def parse_characters(self, name_string):
-        if name_string == None:
+    @staticmethod
+    def parse_characters(name_string):
+        if name_string is None:
             return []
         if len(name_string) == 0:
             return []
@@ -29,179 +31,187 @@ class TextParser:
         characters = [name.strip() for name in characters]
         return characters
 
-
-    def initialize_dict(self):
-        dict = {}
+    def __initialize_dict(self):
+        dictionary = {}
         dict_counter = 0
 
-        for i in range(0, len(self.character_list)):
-            dict[self.character_list[i]] = dict_counter
+        for i in range(0, len(self.__character_list)):
+            dictionary[self.__character_list[i]] = dict_counter
             dict_counter += 1
 
-        for i in range(0, len(self.location_list)):
-            dict[self.location_list[i]] = dict_counter
+        for i in range(0, len(self.__location_list)):
+            dictionary[self.__location_list[i]] = dict_counter
             dict_counter += 1
 
-        for i in range(0, len(self.object_list)):
-            dict[self.object_list[i]] = dict_counter
+        for i in range(0, len(self.__object_list)):
+            dictionary[self.__object_list[i]] = dict_counter
             dict_counter += 1
 
-        return dict
+        return dictionary
 
-
-    def initialize_graph(self):
+    def __initialize_graph(self):
         graph = nx.Graph()
         node_counter = 0
 
-        for i in range(0, len(self.character_list)):
-            graph.add_node(node_counter, {'name' : self.character_list[i], 'frequency' : 1, 'category' : 'character'})
+        for i in range(0, len(self.__character_list)):
+            graph.add_node(node_counter, {'name': self.__character_list[i], 'frequency': 1, 'category': 'character'})
             node_counter += 1
 
-        for i in range(0, len(self.location_list)):
-            graph.add_node(node_counter, {'name' : self.location_list[i], 'frequency' : 1, 'category' : 'location'})
+        for i in range(0, len(self.__location_list)):
+            graph.add_node(node_counter, {'name': self.__location_list[i], 'frequency': 1, 'category': 'location'})
             node_counter += 1
 
-        for i in range(0, len(self.object_list)):
-            graph.add_node(node_counter, {'name' : self.object_list[i], 'frequency' : 1, 'category' : 'object'})
+        for i in range(0, len(self.__object_list)):
+            graph.add_node(node_counter, {'name': self.__object_list[i], 'frequency': 1, 'category': 'object'})
             node_counter += 1
 
         return graph
 
-
-    def increment_name_frequency(self, name, amount = 1):
-        newFrequency = self.graph.node[self.dict[name]]['frequency'] + amount
-        self.graph.node[self.dict[name]]['frequency'] = newFrequency
+    def increment_name_frequency(self, name, amount=1):
+        dict_name = self.__dict[name]
+        new_frequency = self.__graph.node[dict_name]['frequency'] + amount
+        self.__graph.node[dict_name]['frequency'] = new_frequency
         return
-
 
     def add_edge(self, name1, name2):
-        if self.graph.has_edge(self.dict[name1], self.dict[name2]):
-            newFrequency = self.graph.get_edge_data(self.dict[name1], self.dict[name2])['frequency'] + 1;
-            newWeight = self.graph.get_edge_data(self.dict[name1], self.dict[name2])['weight'] + 1;
-            self.graph.add_edge(self.dict[name1], self.dict[name2], frequency=newFrequency, weight = newWeight)
+        if self.__graph.has_edge(self.__dict[name1], self.__dict[name2]):
+            new_frequency = self.__graph.get_edge_data(self.__dict[name1], self.__dict[name2])['frequency'] + 1
+            new_weight = self.__graph.get_edge_data(self.__dict[name1], self.__dict[name2])['weight'] + 1
+            self.__graph.add_edge(self.__dict[name1], self.__dict[name2], frequency=new_frequency, weight=new_weight)
             pass
         else:
-            self.graph.add_edge(self.dict[name1], self.dict[name2], frequency = 1, weight=1)
-        return
+            self.__graph.add_edge(self.__dict[name1], self.__dict[name2], frequency=1, weight=1)
 
     def print_characters(self):
-        print("CHARACTER LIST: " + str(self.character_list))
+        print("CHARACTER LIST: " + str(self.__character_list))
 
     def print_locations(self):
-        print("LOCATION LIST: " + str(self.location_list))
+        print("LOCATION LIST: " + str(self.__location_list))
 
     def print_objects(self):
-        print("OBJECT LIST: " + str(self.object_list))
+        print("OBJECT LIST: " + str(self.__object_list))
 
-    def print_graph(self, show = True):
-        self.clean_graph()
-        node_labels = nx.get_node_attributes(self.graph, 'name')
-        edge_labels = nx.get_edge_attributes(self.graph, 'frequency')
+    def print_graph(self, show=True):
+        if self.__graph is None:
+            raise Exception("graph has not been initialized")
+
+        self.__clean_graph()
+        node_labels = nx.get_node_attributes(self.__graph, 'name')
+        edge_labels = nx.get_edge_attributes(self.__graph, 'frequency')
         color_map = {'character': 'r', 'location': '#FF0099', 'object': '#00a1ff'}
         d = []
 
-        for i in range(0, len(self.graph.nodes())):
-            if self.graph.has_node(i):
-                d.append(int(self.graph.node[i]['frequency']))
+        for i in range(0, len(self.__graph.nodes())):
+            if self.__graph.has_node(i):
+                d.append(int(self.__graph.node[i]['frequency']))
         dlen = len(d)
-        nx.draw(self.graph, pos=nx.circular_layout(self.graph), labels = node_labels,
-                node_color = [color_map[self.graph.node[node]['category']] for node in self.graph], with_labels=True,
-                node_size=[(v * 180)/(dlen + 5) for v in d], ax= self.subplot)
+        nx.draw(self.__graph, pos=nx.circular_layout(self.__graph), labels=node_labels,
+                node_color=[color_map[self.__graph.node[node]['category']] for node in self.__graph], with_labels=True,
+                node_size=[(v * 180) / (dlen + 5) for v in d], ax=self.__subplot)
 
-        edges = self.graph.edges()
-        weights = [self.graph[u][v]['weight'] for u, v in edges]
-        nx.draw_networkx_edges(self.graph, pos = nx.circular_layout(self.graph), edgelist = edges,
-                               width=[(50 * self.graph[u][v]['weight'])/sum(weights) for u, v in edges],
-                               edge_cmap=plt.cm.winter,edge_color=weights, ax= self.subplot)
+        edges = self.__graph.edges()
+        weights = [self.__graph[u][v]['weight'] for u, v in edges]
+        nx.draw_networkx_edges(self.__graph, pos=nx.circular_layout(self.__graph), edgelist=edges,
+                               width=[(50 * self.__graph[u][v]['weight']) / sum(weights) for u, v in edges],
+                               edge_cmap=plt.cm.winter, edge_color=weights, ax=self.__subplot)
 
         if self.labels:
-            nx.draw_networkx_edge_labels(self.graph,pos=nx.circular_layout(self.graph),
-                                         edge_labels=edge_labels, ax= self.subplot)
+            nx.draw_networkx_edge_labels(self.__graph, pos=nx.circular_layout(self.__graph),
+                                         edge_labels=edge_labels, ax=self.__subplot)
 
         if show:
             plt.show()
 
-
     def add_character(self, name):
-        self.character_list.append(name)
-        return
-
+        if name is not None and isinstance(name, str):
+            self.__character_list.append(name)
+            return self.__character_list
+        else:
+            raise Exception("input must be a string")
 
     def add_characters(self, names):
-        if names != None:
-            self.character_list.extend(names)
-            return self.character_list
+        if names is not None and isinstance(names, list):
+            self.__character_list.extend(names)
+            return self.__character_list
         else:
-            return self.character_list
-
+            raise Exception("input must be a list")
 
     def add_location(self, location):
-        self.location_list.append(location)
-        return self.location_list
-
+        if location is not None and isinstance(location, str):
+            self.__location_list.append(location)
+            return self.__location_list
+        else:
+            raise Exception("input must be a string")
 
     def add_locations(self, locations):
-        self.location_list.extend(locations)
-        return self.location_list
-
+        if locations is not None and isinstance(locations, list):
+            self.__location_list.extend(locations)
+            return self.__location_list
+        else:
+            raise Exception("input must be a list")
 
     def add_object(self, obj):
-        self.object_list.append(obj)
-        return self.object_list
-
+        if obj is not None and isinstance(obj, str):
+            self.__object_list.append(obj)
+            return self.__object_list
+        else:
+            raise Exception("input must be a string")
 
     def add_objects(self, objs):
-        self.object_list.extend(objs)
-        return self.object_list
-
+        if objs is not None and isinstance(objs, list):
+            self.__object_list.extend(objs)
+            return self.__object_list
+        else:
+            raise Exception("input must be a list")
 
     def read_file(self, file=None):
-        if file != None:
-            self.file = file
+        if file is not None:
+            self.__file = file
             try:
-                if (self.inp):
-                    self.character_list = self.add_characters(self.parse_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
+                if self.__inp:
+                    self.__character_list = self.add_characters(
+                        self.parse_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
                 else:
-                    self.character_list = self.detect_characters(self.file)
+                    self.__character_list = self.detect_characters(self.__file)
             except FileNotFoundError:
-                print("\nERROR: the file " + self.file + " could not be found.\n")
+                print("\nERROR: the file " + self.__file + " could not be found.\n")
         else:
             while True:
                 try:
-                    self.file = input("INPUT A PATH TO A TEXT FILE: ")
-                    if (self.inp):
-                        self.character_list = self.add_characters(self.parse_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
+                    self.__file = input("INPUT A PATH TO A TEXT FILE: ")
+                    if self.__inp:
+                        self.__character_list = self.add_characters(
+                            self.parse_characters(input("INPUT CHARACTER NAMES SEPARATED BY COMMAS: ")))
                     else:
-                        self.character_list = self.detect_characters(self.file)
+                        self.__character_list = self.detect_characters(self.__file)
                     break
                 except FileNotFoundError:
-                    print ("\nERROR: the file " + self.file + " could not be found.\n")
+                    print("\nERROR: the file " + self.__file + " could not be found.\n")
 
-        self.graph = self.initialize_graph()
-        self.dict = self.initialize_dict()
+        self.__graph = self.__initialize_graph()
+        self.__dict = self.__initialize_dict()
 
-        with open(self.file) as f:
+        with open(self.__file) as f:
             content = f.readlines()
             for line in content:
-                self.parse_line(line)
+                self.__parse_line(line)
         return
 
-
-    def parse_line(self, line):
+    def __parse_line(self, line):
         active = {}
         delimiters = ",", " ", ".", "\n", ";", "; ", ": ", "\""
         regex_pattern = '|'.join(map(re.escape, delimiters))
         words = re.split(regex_pattern, line)
-        name_list = set([name.lower() for name in self.character_list])
-        location_list = set([location.lower() for location in self.location_list])
-        object_list = set([obj.lower() for obj in self.object_list])
+        name_list = set([name.lower() for name in self.__character_list])
+        location_list = set([location.lower() for location in self.__location_list])
+        object_list = set([obj.lower() for obj in self.__object_list])
 
         for current_word in words:
             current_name = ""
             if current_word.lower() in name_list:
-                for i in range(0, len(self.character_list)):
-                    if current_word.lower() == self.character_list[i].lower():
-                        current_name = self.character_list[i]
+                for i in range(0, len(self.__character_list)):
+                    if current_word.lower() == self.__character_list[i].lower():
+                        current_name = self.__character_list[i]
                 self.increment_name_frequency(current_name)
                 for active_name in active:
                     if active_name != current_name:
@@ -209,9 +219,9 @@ class TextParser:
                 active[current_name] = 15
 
             if current_word.lower() in location_list:
-                for i in range(0, len(self.location_list)):
-                    if current_word.lower() == self.location_list[i].lower():
-                        current_name = self.location_list[i]
+                for i in range(0, len(self.__location_list)):
+                    if current_word.lower() == self.__location_list[i].lower():
+                        current_name = self.__location_list[i]
                 self.increment_name_frequency(current_name)
                 for active_name in active:
                     if active_name != current_name:
@@ -219,9 +229,9 @@ class TextParser:
                 active[current_name] = 40
 
             if current_word.lower() in object_list:
-                for i in range(0, len(self.object_list)):
-                    if current_word.lower() == self.object_list[i].lower():
-                        current_name = self.object_list[i]
+                for i in range(0, len(self.__object_list)):
+                    if current_word.lower() == self.__object_list[i].lower():
+                        current_name = self.__object_list[i]
                 self.increment_name_frequency(current_name)
                 for active_name in active:
                     if active_name.lower() != current_name.lower():
@@ -236,23 +246,22 @@ class TextParser:
                     del active[active_name]
                     break
 
-
     def detect_characters(self, file):
         with open(file) as f:
             lines = f.read().replace('\n', ' ')
             past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered',
-                          'yelled','yelped', 'announced','muttered','asked','inquired','cried','answered',
-                          'interposed','interrupted','suggested','thought','called','added','began','observed',
-                          'echoed','repeated','shrugged','pointed','argued','promised','noted',
-                          'mentioned','replied','screamed','grumbled','stammered','screeched',
-                          'questioned','pleaded','proclaimed','professed','moaned','spouted',
-                          'surmised','murmured','voiced','urged','wept','rambled','ranted',
-                          'decided','demanded','wailed','chuckled','chanted','boasted','coaxed',
-                          'blurted','lectured','hinted','barked','rebuffed','kissed','ran','walked',
-                          'swung','lifted','charged','sped','crept','restrained','droned','uttered',
-                          'took','yanked','collapsed','tumbled','crumpled','screeched','glided',
-                          'trudged','limped','hesitated','erupted','stampeded','created','started',
-                          'created','initiated','ended','chided','reached','glanced']
+                          'yelled', 'yelped', 'announced', 'muttered', 'asked', 'inquired', 'cried', 'answered',
+                          'interposed', 'interrupted', 'suggested', 'thought', 'called', 'added', 'began', 'observed',
+                          'echoed', 'repeated', 'shrugged', 'pointed', 'argued', 'promised', 'noted',
+                          'mentioned', 'replied', 'screamed', 'grumbled', 'stammered', 'screeched',
+                          'questioned', 'pleaded', 'proclaimed', 'professed', 'moaned', 'spouted',
+                          'surmised', 'murmured', 'voiced', 'urged', 'wept', 'rambled', 'ranted',
+                          'decided', 'demanded', 'wailed', 'chuckled', 'chanted', 'boasted', 'coaxed',
+                          'blurted', 'lectured', 'hinted', 'barked', 'rebuffed', 'kissed', 'ran', 'walked',
+                          'swung', 'lifted', 'charged', 'sped', 'crept', 'restrained', 'droned', 'uttered',
+                          'took', 'yanked', 'collapsed', 'tumbled', 'crumpled', 'screeched', 'glided',
+                          'trudged', 'limped', 'hesitated', 'erupted', 'stampeded', 'created', 'started',
+                          'created', 'initiated', 'ended', 'chided', 'reached', 'glanced']
             matches = []
 
             for i in range(0, len(past_verbs)):
@@ -263,89 +272,99 @@ class TextParser:
                     match[j] = match[j].replace(past_verbs[i] + ' ', '')
                 matches.extend(match)
 
-            omitted = {"He","She","It","They","You","Mr","Mrs","Miss","Lord"
-                ,"Professor","Uncle","Aunt","Then",'I','We','When','If','Others','Some'
-                ,"In","And","On","An","What","His","Her","Have","That","But","Not"
-                ,"This","The","You","Your","Or","My","So","Nearly","Who","YOU","Another"
-                ,"Having","Everyone","One","No","Someone","All","Both","Never","Nobody"
-                ,"Did","Such","At","Other","Their","Our","By","Nothing","Which","Where"
-                ,"Were","Here","Well","Do","Either","There","Now"}
+            omitted = {"He", "She", "It", "They", "You", "Mr", "Mrs", "Miss", "Lord",
+                       "Professor", "Uncle", "Aunt", "Then", 'I', 'We', 'When', 'If', 'Others', 'Some',
+                       "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not",
+                       "This", "The", "You", "Your", "Or", "My", "So", "Nearly", "Who", "YOU", "Another",
+                       "Having", "Everyone", "One", "No", "Someone", "All", "Both", "Never", "Nobody",
+                       "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where",
+                       "Were", "Here", "Well", "Do", "Either", "There", "Now"}
 
             matches = [word for word in matches if word not in omitted]
 
             name_set = list(set(matches))
             matches = []
-            for i in range(0,len(name_set)):
+            for i in range(0, len(name_set)):
                 matches.append(name_set[i])
-                if i >= self.char_lim:
+                if i >= self.__char_lim:
                     break
 
         return matches
 
-    def clean_graph(self):
-        nodes = self.graph.nodes(data=True)
+    def __clean_graph(self):
+        if self.__graph is None:
+            raise Exception("graph has not been initialized")
+
+        nodes = self.__graph.nodes(data=True)
         to_delete = []
-        for i in range(0,len(nodes)):
-            if int(self.graph.node[i]['frequency']) < self.min_freq and self.graph.node[i]['category'] == 'character':
+        for i in range(0, len(nodes)):
+            if int(self.__graph.node[i]['frequency']) \
+                    < self.__min_freq and 'character' == self.__graph.node[i]['category']:
                 to_delete.append(i)
         to_delete.reverse()
-        self.graph.remove_nodes_from(to_delete)
+        self.__graph.remove_nodes_from(to_delete)
 
-        if self.graph.size() >= self.char_label_lim:
+        if self.__graph.size() >= self.__char_label_lim:
             self.labels = False
 
     def get_frequency(self, name):
-        if self.graph == None:
+        if self.__graph is None:
+            raise Exception("graph has not been initialized")
+        if name not in self.__dict:
             return 0
-        if name not in self.dict:
-            return 0
-        return int(self.graph.node[self.dict[name]]['frequency'])
+        return int(self.__graph.node[self.__dict[name]]['frequency'])
 
     def get_num_connections(self, name_one, name_two):
-        if self.graph == None:
+        if self.__graph is None:
+            raise Exception("graph has not been initialized")
+        if name_one not in self.__dict or name_two not in self.__dict:
             return 0
-        if name_one not in self.dict or name_two not in self.dict:
-            return 0
-        return int(self.graph.get_edge_data(self.dict[name_one], self.dict[name_two])['frequency'])
+        return int(self.__graph.get_edge_data(self.__dict[name_one], self.__dict[name_two])['frequency'])
 
     def get_num_characters(self):
-        return len(self.character_list)
+        return len(self.__character_list)
 
     def get_shortest_path(self, name_one, name_two):
-        if self.graph == None:
-            return []
-        elif name_one not in self.dict or name_two not in self.dict:
+        if self.__graph is None:
+            raise Exception("graph has not been initialized")
+        elif name_one not in self.__dict or name_two not in self.__dict:
             return []
         else:
-            num_path = nx.shortest_path(self.graph, source=self.dict[name_one], target=self.dict[name_two], weight=None)
-            path = [self.graph.node[i]['name'] for i in num_path]
+            num_path = nx.shortest_path(self.__graph, source=self.__dict[name_one], target=self.__dict[name_two],
+                                        weight=None)
+            path = [self.__graph.node[i]['name'] for i in num_path]
             return path
 
     def get_graph(self):
-        return self.graph
+        return self.__graph
 
     def get_characters(self):
-        return self.character_list
+        return self.__character_list
 
     def get_locations(self):
-        return self.location_list
+        return self.__location_list
 
     def get_objects(self):
-        return self.object_list
+        return self.__object_list
 
-    def save_graph(self, directory = '', form = 'png', name = 'character_graph', compressed = False, compression_format = 'gz'):
+    def save_graph(self, directory='', form='png', name='character_graph',
+                   compressed=False, compression_format='gz'):
+
+        if self.__graph is None:
+            raise Exception("graph has not been initialized")
+
         name = directory + '//' + name + '.' + form
         if compressed:
-            name = name + compression_format
+            name += "." + compression_format
 
         if form == 'gml':
-            nx.write_gml(self.graph, name)
+            nx.write_gml(self.__graph, name)
         elif form == 'png':
-            self.plot.savefig(name)
+            self.__plot.savefig(name)
         elif form == 'pdf':
-            self.plot.savefig(name, format='pdf')
+            self.__plot.savefig(name, format='pdf')
         elif form == 'eps':
-            self.plot.savefig(name, format='eps')
+            self.__plot.savefig(name, format='eps')
         elif form == 'svg':
-            self.plot.savefig(name, format='svg')
+            self.__plot.savefig(name, format='svg')
         return
