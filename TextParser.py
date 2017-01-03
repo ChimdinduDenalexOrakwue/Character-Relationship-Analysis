@@ -39,8 +39,11 @@ class TextParser:
             return []
         if len(name_string) == 0:
             return []
+
+        # split the string by the ',' delimiter and remove spaces from the front and back of each word
         characters = name_string.split(',')
         characters = [name.strip() for name in characters]
+
         return characters
 
     def __initialize_dict(self):
@@ -142,27 +145,37 @@ class TextParser:
         self.__clean_graph()
         node_labels = nx.get_node_attributes(self.__graph, 'name')
         edge_labels = nx.get_edge_attributes(self.__graph, 'frequency')
+
+        # color map for different node types
         color_map = {'character': 'r', 'location': '#FF0099', 'object': '#00a1ff'}
+
+        # list of node frequencies
         d = []
 
         for i in range(0, len(self.__graph.nodes())):
             if self.__graph.has_node(i):
                 d.append(int(self.__graph.node[i]['frequency']))
         dlen = len(d)
+
+        # draw the graph nodes
         nx.draw(self.__graph, pos=nx.circular_layout(self.__graph), labels=node_labels,
                 node_color=[color_map[self.__graph.node[node]['category']] for node in self.__graph], with_labels=True,
                 node_size=[(v * 180) / (dlen + 5) for v in d], ax=self.__subplot)
 
         edges = self.__graph.edges()
         weights = [self.__graph[u][v]['weight'] for u, v in edges]
+
+        # draw the edges of the network
         nx.draw_networkx_edges(self.__graph, pos=nx.circular_layout(self.__graph), edgelist=edges,
                                width=[(50 * self.__graph[u][v]['weight']) / sum(weights) for u, v in edges],
                                edge_cmap=plt.cm.winter, edge_color=weights, ax=self.__subplot)
 
+        # print the edge labels if .__labels is True
         if self.__labels:
             nx.draw_networkx_edge_labels(self.__graph, pos=nx.circular_layout(self.__graph),
                                          edge_labels=edge_labels, ax=self.__subplot)
-        # only show the graph if show = True
+
+        # only show the graph if show is True
         if show:
             plt.show()
 
@@ -191,6 +204,11 @@ class TextParser:
             raise Exception("input must be a list")
 
     def add_location(self, location):
+        """
+        Adds the given location to the location list.
+        :param location: location to add to the location list
+        :return: list
+        """
         if location is not None and isinstance(location, str):
             self.__location_list.append(location)
             return self.__location_list
@@ -198,6 +216,11 @@ class TextParser:
             raise Exception("input must be a string")
 
     def add_locations(self, locations):
+        """
+        Adds the given locations to the location list
+        :param locations: list of locations
+        :return: list
+        """
         if locations is not None and isinstance(locations, list):
             self.__location_list.extend(locations)
             return self.__location_list
@@ -205,6 +228,11 @@ class TextParser:
             raise Exception("input must be a list")
 
     def add_object(self, obj):
+        """
+        Adds the given object to the object list.
+        :param obj: object to add to the object list
+        :return: list
+        """
         if obj is not None and isinstance(obj, str):
             self.__object_list.append(obj)
             return self.__object_list
@@ -212,6 +240,11 @@ class TextParser:
             raise Exception("input must be a string")
 
     def add_objects(self, objs):
+        """
+        Adds the given objects to the objects list
+        :param objs: list of objects
+        :return: list
+        """
         if objs is not None and isinstance(objs, list):
             self.__object_list.extend(objs)
             return self.__object_list
@@ -247,9 +280,11 @@ class TextParser:
                 except FileNotFoundError:
                     print("\nERROR: the file " + self.__file + " could not be found.\n")
 
+        # initialize the graph and dict once the character list has been created
         self.__graph = self.__initialize_graph()
         self.__dict = self.__initialize_dict()
 
+        # open the file and parse each line
         with open(self.__file) as f:
             content = f.readlines()
             for line in content:
@@ -316,7 +351,10 @@ class TextParser:
         :return: list of detected characters
         """
         with open(file) as f:
+            # replace new line characters with spaces
             lines = f.read().replace('\n', ' ')
+
+            # list of past tense verbs used to detect characters
             past_verbs = ['said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered',
                           'yelled', 'yelped', 'announced', 'muttered', 'asked', 'inquired', 'cried', 'answered',
                           'interposed', 'interrupted', 'suggested', 'thought', 'called', 'added', 'began', 'observed',
@@ -332,6 +370,7 @@ class TextParser:
                           'created', 'initiated', 'ended', 'chided', 'reached', 'glanced']
             matches = []
 
+            # loop through past_verbs and use regex expressions to create a list of matches
             for i in range(0, len(past_verbs)):
                 pattern = '[A-Z][\w]+ ' + past_verbs[i] + '|' + past_verbs[i] + ' [A-Z][\w]+'
                 match = re.findall(pattern, lines)
@@ -340,6 +379,7 @@ class TextParser:
                     match[j] = match[j].replace(past_verbs[i] + ' ', '')
                 matches.extend(match)
 
+            # words that are omitted from the list of detected characters
             omitted = {"He", "She", "It", "They", "You", "Mr", "Mrs", "Miss", "Lord",
                        "Professor", "Uncle", "Aunt", "Then", 'I', 'We', 'When', 'If', 'Others', 'Some',
                        "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not",
@@ -348,6 +388,7 @@ class TextParser:
                        "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where",
                        "Were", "Here", "Well", "Do", "Either", "There", "Now"}
 
+            # remove the words in the omitted set from the list of matches
             matches = [word for word in matches if word not in omitted]
 
             name_set = list(set(matches))
@@ -367,13 +408,15 @@ class TextParser:
         if self.__graph is None:
             raise Exception("graph has not been initialized")
 
-        # delete nodes who have a frequency less than min_freq
+        # create list of nodes  who have a frequency less than min_freq to delete
         nodes = self.__graph.nodes(data=True)
         to_delete = []
         for i in range(0, len(nodes)):
             if int(self.__graph.node[i]['frequency']) \
                     < self.__min_freq and 'character' == self.__graph.node[i]['category']:
                 to_delete.append(i)
+
+        # reverse the list of nodes to reverse in order to format it for remove_nodes_from()
         to_delete.reverse()
         self.__graph.remove_nodes_from(to_delete)
 
@@ -402,6 +445,7 @@ class TextParser:
         if self.__graph is None:
             raise Exception("graph has not been initialized")
         if name_one not in self.__dict or name_two not in self.__dict:
+            # return 0 as either one or both names are not in the dict, making a connection impossible
             return 0
         return int(self.__graph.get_edge_data(self.__dict[name_one], self.__dict[name_two])['frequency'])
 
@@ -441,8 +485,10 @@ class TextParser:
         elif name_one not in self.__dict or name_two not in self.__dict:
             return []
         else:
+            # num_path is a list of ints corresponding to node id's
             num_path = nx.shortest_path(self.__graph, source=self.__dict[name_one], target=self.__dict[name_two],
                                         weight=None)
+            # path is the names corresponding to the node id's in num_path
             path = [self.__graph.node[i]['name'] for i in num_path]
             return path
 
