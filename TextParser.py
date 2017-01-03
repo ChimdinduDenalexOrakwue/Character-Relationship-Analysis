@@ -6,6 +6,8 @@ from matplotlib import pyplot as plt
 class TextParser:
     def __init__(self, inp=False, min_freq=40, char_lim=float("inf"),
                  labels=False, char_label_lim=40):
+        """Initialize the text parser."""
+
         self.__char_lim = char_lim
         self.__min_freq = min_freq
         self.__character_list = []
@@ -83,12 +85,15 @@ class TextParser:
             self.__graph.add_edge(self.__dict[name1], self.__dict[name2], frequency=1, weight=1)
 
     def print_characters(self):
+        """Prints the character list to the console."""
         print("CHARACTER LIST: " + str(self.__character_list))
 
     def print_locations(self):
+        """Prints the location list to the console."""
         print("LOCATION LIST: " + str(self.__location_list))
 
     def print_objects(self):
+        """Prints the object list to the console."""
         print("OBJECT LIST: " + str(self.__object_list))
 
     def print_graph(self, show=True):
@@ -195,7 +200,6 @@ class TextParser:
             content = f.readlines()
             for line in content:
                 self.__parse_line(line)
-        return
 
     def __parse_line(self, line):
         active = {}
@@ -307,7 +311,11 @@ class TextParser:
         if self.__graph.size() >= self.__char_label_lim:
             self.labels = False
 
-    def get_frequency(self, name):
+    def get_frequency_in_graph(self, name):
+        """
+        Returns the number of times the input has been detected
+        :rtype: int
+        """
         if self.__graph is None:
             raise Exception("graph has not been initialized")
         if name not in self.__dict:
@@ -336,15 +344,27 @@ class TextParser:
             return path
 
     def get_graph(self):
+        """Returns the graph.
+        :rtype: list
+        """
         return self.__graph
 
     def get_characters(self):
+        """Returns the character list.
+        :rtype: list
+        """
         return self.__character_list
 
     def get_locations(self):
+        """Returns the location list.
+        :rtype: list
+        """
         return self.__location_list
 
     def get_objects(self):
+        """Returns the object list.
+        :rtype: list
+        """
         return self.__object_list
 
     def save_graph(self, directory='', form='png', name='character_graph',
@@ -367,4 +387,3 @@ class TextParser:
             self.__plot.savefig(name, format='eps')
         elif form == 'svg':
             self.__plot.savefig(name, format='svg')
-        return
