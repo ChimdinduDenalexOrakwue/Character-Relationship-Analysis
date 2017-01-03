@@ -6,8 +6,14 @@ from matplotlib import pyplot as plt
 class TextParser:
     def __init__(self, inp=False, min_freq=40, char_lim=float("inf"),
                  labels=False, char_label_lim=40):
-        """Initialize the text parser."""
-
+        """
+        Initialize the text parser
+        :param inp: set to True to manually input characters
+        :param min_freq: minimum frequency a node must have in order to remain in the graph at print time
+        :param char_lim: limit of characters to detect
+        :param labels: set to True to show edge labels
+        :param char_label_lim: maximum amount of characters befor labels are not shown automatically
+        """
         self.__char_lim = char_lim
         self.__min_freq = min_freq
         self.__character_list = []
