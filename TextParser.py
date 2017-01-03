@@ -120,7 +120,7 @@ class TextParser:
                                width=[(50 * self.__graph[u][v]['weight']) / sum(weights) for u, v in edges],
                                edge_cmap=plt.cm.winter, edge_color=weights, ax=self.__subplot)
 
-        if self.labels:
+        if self.__labels:
             nx.draw_networkx_edge_labels(self.__graph, pos=nx.circular_layout(self.__graph),
                                          edge_labels=edge_labels, ax=self.__subplot)
 
@@ -309,7 +309,7 @@ class TextParser:
         self.__graph.remove_nodes_from(to_delete)
 
         if self.__graph.size() >= self.__char_label_lim:
-            self.labels = False
+            self.__labels = False
 
     def get_frequency_in_graph(self, name):
         """
