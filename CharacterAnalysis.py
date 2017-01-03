@@ -14,4 +14,3 @@ parser.print_objects()
 # print("SHORTEST PATH: " + str(parser.get_shortest_path("", "")))
 parser.print_graph(show=True)
 # parser.save_graph(directory="", form ='png')
-parser.g
