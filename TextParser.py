@@ -159,7 +159,7 @@ class TextParser:
         # draw the graph nodes
         nx.draw(self.__graph, pos=nx.circular_layout(self.__graph), labels=node_labels,
                 node_color=[color_map[self.__graph.node[node]['category']] for node in self.__graph], with_labels=True,
-                node_size=[(v * 10000/ sum(d)) for v in d], ax=self.__subplot)
+                node_size=[(v * 10000 / sum(d)) for v in d], ax=self.__subplot)
 
         edges = self.__graph.edges()
         weights = [self.__graph[u][v]['weight'] for u, v in edges]
@@ -360,15 +360,17 @@ class TextParser:
                           'called', 'added', 'began', 'observed', 'echoed', 'repeated', 'shrugged', 'subtracted',
                           'pointed', 'argued', 'promised', 'noted', 'mentioned', 'replied', 'wanted', 'put',
                           'screamed', 'grumbled', 'stammered', 'screeched', 'questioned', 'pleaded', 'fell',
-                          'proclaimed', 'professed', 'moaned', 'spouted', 'surmised', 'murmured', 'appeared'
-                          'wept', 'rambled', 'ranted', 'decided', 'demanded', 'stopped', 'voiced', 'urged',
+                          'proclaimed', 'professed', 'moaned', 'spouted', 'surmised', 'murmured', 'appeared',
+                          'ranted', 'decided', 'demanded', 'stopped', 'voiced', 'urged', 'wept', 'rambled',
                           'wailed', 'chuckled', 'chanted', 'boasted', 'coaxed', 'blurted', 'lectured', 'spent',
                           'hinted', 'barked', 'rebuffed', 'kissed', 'ran', 'walked', 'swung', 'lifted', 'stood',
                           'charged', 'sped', 'crept', 'restrained', 'droned', 'uttered', 'glided', 'loved',
                           'took', 'yanked', 'collapsed', 'tumbled', 'crumpled', 'screeched', 'understood',
                           'trudged', 'limped', 'hesitated', 'erupted', 'stampeded', 'created', 'started', 'gave',
                           'created', 'initiated', 'ended', 'chided', 'reached', 'glanced', 'felt', 'believed',
-                          'turned', 'grew', 'became', 'fought', 'killed', 'went', 'will', 'shot')
+                          'turned', 'grew', 'became', 'fought', 'killed', 'went', 'will', 'shot', 'nodded',
+                          'fumed', 'tried', 'crouched', 'ordered', 'shuddered', 'ignored', 'grabbed',
+                          'countered', 'hoping', 'looked', 'made', 'closed', 'caught', 'gave')
             matches = []
 
             # loop through past_verbs and use regex expressions to create a list of matches
@@ -381,13 +383,16 @@ class TextParser:
                 matches.extend(match)
 
             # words that are omitted from the list of detected characters
-            omitted = {"He", "She", "It", "They", "You", "Mr", "Mrs", "Miss", "Lord", "Just", "Everything"
-                       "Professor", "Uncle", "Aunt", "Then", 'I', 'We', 'When', 'If', 'Others', 'Some',
-                       "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not", "How",
-                       "This", "The", "You", "Your", "Or", "My", "So", "Nearly", "Who", "YOU", "Another",
-                       "Having", "Everyone", "One", "No", "Someone", "All", "Both", "Never", "Nobody",
-                       "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where",
-                       "Were", "Here", "Well", "Do", "Either", "There", "Now", "To", "As", "Anything"}
+            omitted = {"He", "She", "It", "They", "You", "Mr", "Mrs", "Miss", "Lord", "Just", "Everything",
+                       "Professor", "Uncle", "Aunt", "Then", 'I', 'We', 'When', 'If', 'Others', 'Some', "Only",
+                       "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not", "How", "More",
+                       "This", "The", "You", "Your", "Or", "My", "So", "Nearly", "Who", "YOU", "Another", "Very",
+                       "Having", "Everyone", "One", "No", "Someone", "All", "Both", "Never", "Nobody", "Of", "End",
+                       "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where", "Into",
+                       "Were", "Here", "Well", "Do", "Either", "There", "Now", "To", "As", "Anything", "These",
+                       "Something", "Thou", "Why", "New", "Maybe", "Yes", "OFF", "ON", "Almost", "Nor", "Many",
+                       "Most", "Instantly", "Thing", "Things", "Nearby", "Stay", "Out", "Always", "Somebody",
+                       "Sure", "Everybody", "Done", "With", "Get", "Ever", "Already", "Often", "HE", "WOULD"}
 
             # remove the words in the omitted set from the list of matches
             matches = [word for word in matches if word not in omitted]
