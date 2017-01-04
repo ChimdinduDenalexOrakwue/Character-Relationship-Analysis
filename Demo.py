@@ -1,6 +1,6 @@
 from TextParser import TextParser as tP
 
-parser = tP(min_freq=0, labels=True)
+parser = tP(min_freq=200, labels=True)
 parser.add_characters([])
 parser.add_locations([])
 parser.add_objects([])
