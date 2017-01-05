@@ -12,7 +12,7 @@ class TextParser:
         :param min_freq: minimum frequency a node must have in order to remain in the graph at print time
         :param char_lim: limit of characters to detect
         :param labels: set to True to show edge labels
-        :param char_label_lim: maximum amount of characters befor labels are not shown automatically
+        :param char_label_lim: maximum amount of characters before labels are not shown automatically
         """
         self.__char_lim = char_lim
         self.__min_freq = min_freq
@@ -286,10 +286,14 @@ class TextParser:
         # open the file and parse each line
         with open(self.__file) as f:
             content = f.readlines()
+            name_list = frozenset([name.lower() for name in self.__character_list])
+            location_list = frozenset([location.lower() for location in self.__location_list])
+            object_list = frozenset([obj.lower() for obj in self.__object_list])
+            character_list = tuple(self.__character_list)
             for line in content:
-                self.__parse_line(line)
+                self.__parse_line(line, name_list, location_list, object_list, character_list)
 
-    def __parse_line(self, line):
+    def __parse_line(self, line, name_list, location_list, object_list, character_list):
         """
         Parses the given line and creates connections between graph nodes
         :param line: line from file
@@ -299,23 +303,20 @@ class TextParser:
         delimiters = ",", " ", ".", "\n", ";", "; ", ": ", "\"", ", "
         regex_pattern = '|'.join(map(re.escape, delimiters))
         words = re.split(regex_pattern, line)
-        name_list = set([name.lower() for name in self.__character_list])
-        location_list = set([location.lower() for location in self.__location_list])
-        object_list = set([obj.lower() for obj in self.__object_list])
 
         for current_word in words:
             current_name = ""
             if current_word.lower() in name_list:
-                for i in range(0, len(self.__character_list)):
-                    if current_word.lower() == self.__character_list[i].lower():
-                        current_name = self.__character_list[i]
+                for i in range(0, len(character_list)):
+                    if current_word.lower() == character_list[i].lower():
+                        current_name = character_list[i]
                 self.increment_name_frequency(current_name)
                 for active_name in active:
                     if active_name != current_name:
                         self.add_edge(active_name, current_name)
                 active[current_name] = 15
 
-            if current_word.lower() in location_list:
+            elif current_word.lower() in location_list:
                 for i in range(0, len(self.__location_list)):
                     if current_word.lower() == self.__location_list[i].lower():
                         current_name = self.__location_list[i]
@@ -325,7 +326,7 @@ class TextParser:
                         self.add_edge(active_name, current_name)
                 active[current_name] = 40
 
-            if current_word.lower() in object_list:
+            elif current_word.lower() in object_list:
                 for i in range(0, len(self.__object_list)):
                     if current_word.lower() == self.__object_list[i].lower():
                         current_name = self.__object_list[i]
@@ -350,13 +351,10 @@ class TextParser:
         :return: list of detected characters
         """
         with open(file) as f:
-            # replace new line characters with spaces
-            lines = f.read().replace('\n', ' ')
-
             # list of past tense verbs used to detect characters
-            past_verbs = ('said', 'shouted', 'exclaimed', 'remarked', 'quipped', 'whispered', 'watched',
+            past_verbs = ("said", "shouted", "exclaimed", "remarked", "quipped", "whispered", "watched",
                           'yelled', 'yelped', 'announced', 'muttered', 'asked', 'inquired', 'desired',
-                          'cried', 'answered', 'interposed', 'interrupted', 'suggested', 'thought', 'might',
+                          'cried', "answered", 'interposed', 'interrupted', 'suggested', 'thought', 'might',
                           'called', 'added', 'began', 'observed', 'echoed', 'repeated', 'shrugged', 'subtracted',
                           'pointed', 'argued', 'promised', 'noted', 'mentioned', 'replied', 'wanted', 'put',
                           'screamed', 'grumbled', 'stammered', 'screeched', 'questioned', 'pleaded', 'fell',
@@ -371,33 +369,37 @@ class TextParser:
                           'turned', 'grew', 'became', 'fought', 'killed', 'went', 'will', 'shot', 'nodded',
                           'fumed', 'tried', 'crouched', 'ordered', 'shuddered', 'ignored', 'grabbed',
                           'countered', 'hoping', 'looked', 'made', 'closed', 'caught', 'gave')
-            matches = []
+            matches = set()
+
+            # replace new line characters with spaces
+            lines = f.read().replace('\n', ' ')
 
             # loop through past_verbs and use regex expressions to create a list of matches
             for i in range(0, len(past_verbs)):
-                pattern = '[A-Z][\w]+ ' + past_verbs[i] + '|' + past_verbs[i] + ' [A-Z][\w]+'
+                pattern = "[A-Z][\w]+ %s|%s [A-Z][\w]+" % (past_verbs[i], past_verbs[i])
                 match = re.findall(pattern, lines)
                 for j in range(0, len(match)):
                     match[j] = match[j].replace(' ' + past_verbs[i], '')
                     match[j] = match[j].replace(past_verbs[i] + ' ', '')
-                matches.extend(match)
+                matches |= frozenset(match)
 
             # words that are omitted from the list of detected characters
-            omitted = {"He", "She", "It", "They", "You", "Mr", "Mrs", "Miss", "Lord", "Just", "Everything",
-                       "Professor", "Uncle", "Aunt", "Then", 'I', 'We', 'When', 'If', 'Others', 'Some', "Only",
-                       "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not", "How", "More",
-                       "This", "The", "You", "Your", "Or", "My", "So", "Nearly", "Who", "YOU", "Another", "Very",
-                       "Having", "Everyone", "One", "No", "Someone", "All", "Both", "Never", "Nobody", "Of", "End",
-                       "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where", "Into",
-                       "Were", "Here", "Well", "Do", "Either", "There", "Now", "To", "As", "Anything", "These",
-                       "Something", "Thou", "Why", "New", "Maybe", "Yes", "OFF", "ON", "Almost", "Nor", "Many",
-                       "Most", "Instantly", "Thing", "Things", "Nearby", "Stay", "Out", "Always", "Somebody",
-                       "Sure", "Everybody", "Done", "With", "Get", "Ever", "Already", "Often", "HE", "WOULD"}
+            omitted = frozenset(["He", "She", "It", "They", "You", "Mr", "Mrs", "Miss", "Lord", "Just", "Everything",
+                    "Professor", "Uncle", "Aunt", "Then", 'I', 'We', 'When', 'If', 'Others', 'Some', "Only",
+                    "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not", "How", "More",
+                    "This", "The", "You", "Your", "Or", "My", "So", "Nearly", "Who", "YOU", "Another", "Very",
+                    "Having", "Everyone", "One", "No", "Someone", "All", "Both", "Never", "Nobody", "Of", "End",
+                    "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where", "Into",
+                    "Were", "Well", "Here", "Do", "Either", "There", "Now", "To", "As", "Anything", "These",
+                    "Something", "Thou", "Why", "New", "Maybe", "Yes", "OFF", "ON", "Almost", "Nor", "Many",
+                    "Most", "Instantly", "Thing", "Things", "Nearby", "Stay", "Out", "Always", "Somebody",
+                    "Sure", "Everybody", "Done", "With", "Get", "Ever", "Already", "Often", "HE", "WOULD",
+                    "Whatever", "Ending", "Tonight", "Thank", "Go", "THE"])
 
             # remove the words in the omitted set from the list of matches
             matches = [word for word in matches if word not in omitted]
 
-            name_set = list(set(matches))
+            name_set = matches
             matches = []
             for i in range(0, len(name_set)):
                 matches.append(name_set[i])
