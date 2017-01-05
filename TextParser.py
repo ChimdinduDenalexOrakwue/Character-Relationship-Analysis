@@ -4,17 +4,14 @@ from matplotlib import pyplot as plt
 
 
 class TextParser:
-    def __init__(self, inp=False, min_freq=40, char_lim=float("inf"),
-                 labels=False, char_label_lim=40):
+    def __init__(self, inp=False, min_freq=40, labels=False, char_label_lim=40):
         """
         Initialize the text parser
         :param inp: set to True to manually input characters
         :param min_freq: minimum frequency a node must have in order to remain in the graph at print time
-        :param char_lim: limit of characters to detect
         :param labels: set to True to show edge labels
         :param char_label_lim: maximum amount of characters before labels are not shown automatically
         """
-        self.__char_lim = char_lim
         self.__min_freq = min_freq
         self.__character_list = []
         self.__location_list = []
@@ -344,7 +341,8 @@ class TextParser:
                     del active[active_name]
                     break
 
-    def detect_characters(self, file):
+    @staticmethod
+    def detect_characters(file):
         """
         Detects characters in a given file.
         :param file: path to file
@@ -399,13 +397,6 @@ class TextParser:
 
             # remove the words in the omitted set from the list of matches
             matches = [word for word in matches if word not in omitted]
-
-            name_set = matches
-            matches = []
-            for i in range(0, len(name_set)):
-                matches.append(name_set[i])
-                if i >= self.__char_lim:
-                    break
 
         return matches
 
