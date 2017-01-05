@@ -55,7 +55,7 @@ class TextParser:
         dict_counter = 0
 
         for i in range(0, len(self.__character_list)):
-            dictionary[self.__character_list[i]] = dict_counter
+            dictionary[self.__character_list[i].lower()] = dict_counter
             dict_counter += 1
 
         for i in range(0, len(self.__location_list)):
@@ -101,7 +101,7 @@ class TextParser:
         elif self.__dict is None:
             raise Exception("dict has not been initialized")
 
-        dict_name = self.__dict[name]
+        dict_name = self.__dict[name.lower()]
         new_frequency = self.__graph.node[dict_name]['frequency'] + amount
         self.__graph.node[dict_name]['frequency'] = new_frequency
 
@@ -112,6 +112,8 @@ class TextParser:
         :param name2: name of second node
         :return: None
         """
+        name1 = name1.lower()
+        name2 = name2.lower()
         if self.__graph.has_edge(self.__dict[name1], self.__dict[name2]):
             new_frequency = self.__graph.get_edge_data(self.__dict[name1], self.__dict[name2])['frequency'] + 1
             new_weight = self.__graph.get_edge_data(self.__dict[name1], self.__dict[name2])['weight'] + 1
@@ -300,16 +302,15 @@ class TextParser:
         :return: None
         """
         active = {}
-        delimiters = ",", " ", ".", "\n", ";", "; ", ": ", "\"", ", "
+        delimiters = ",", " ", ".", "\n", ";", "; ", ": ", "\"", ", ", "!", "?"
         regex_pattern = '|'.join(map(re.escape, delimiters))
         words = re.split(regex_pattern, line)
 
         for current_word in words:
             current_name = ""
-            if current_word.lower() in name_list:
-                for i in range(0, len(character_list)):
-                    if current_word.lower() == character_list[i].lower():
-                        current_name = character_list[i]
+            name = current_word.lower()
+            if name in name_list:
+                current_name = name
                 self.increment_name_frequency(current_name)
                 for active_name in active:
                     if active_name != current_name:
@@ -385,16 +386,17 @@ class TextParser:
 
             # words that are omitted from the list of detected characters
             omitted = frozenset(["He", "She", "It", "They", "You", "Mr", "Mrs", "Miss", "Lord", "Just", "Everything",
-                    "Professor", "Uncle", "Aunt", "Then", 'I', 'We', 'When', 'If', 'Others', 'Some', "Only",
-                    "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not", "How", "More",
+                    "Professor", "Uncle", "Aunt", "Then", 'We', 'When', 'If', 'Others', 'Some', "Only", "I", "Soon",
+                    "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not", "How", "More", "Me",
                     "This", "The", "You", "Your", "Or", "My", "So", "Nearly", "Who", "YOU", "Another", "Very",
                     "Having", "Everyone", "One", "No", "Someone", "All", "Both", "Never", "Nobody", "Of", "End",
-                    "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where", "Into",
+                    "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where", "Into", "IT",
                     "Were", "Well", "Here", "Do", "Either", "There", "Now", "To", "As", "Anything", "These",
-                    "Something", "Thou", "Why", "New", "Maybe", "Yes", "OFF", "ON", "Almost", "Nor", "Many",
-                    "Most", "Instantly", "Thing", "Things", "Nearby", "Stay", "Out", "Always", "Somebody",
-                    "Sure", "Everybody", "Done", "With", "Get", "Ever", "Already", "Often", "HE", "WOULD",
-                    "Whatever", "Ending", "Tonight", "Thank", "Go", "THE", "Beyond"])
+                    "Something", "Thou", "Why", "New", "Maybe", "Yes", "OFF", "ON", "Almost", "Nor", "Many", "Those",
+                    "Most", "Instantly", "Thing", "Things", "Nearby", "Stay", "Out", "Always", "Somebody", "Yet",
+                    "Sure", "Everybody", "Done", "With", "Get", "Ever", "Already", "Often", "HE", "WOULD", "Way",
+                    "Whatever", "Ending", "Tonight", "Thank", "Go", "THE", "Beyond", "ALL", "WHAT", "Anyone", "Yeah",
+                    "Stop", "Words", "Old", "Men", "Getting", "Dr", "People"])
 
             # remove the words in the omitted set from the list of matches
             matches = [word for word in matches if word not in omitted]
@@ -439,9 +441,9 @@ class TextParser:
         """
         if self.__graph is None:
             raise Exception("graph has not been initialized")
-        if name not in self.__dict:
+        if name.lower() not in self.__dict:
             return 0
-        return int(self.__graph.node[self.__dict[name]]['frequency'])
+        return int(self.__graph.node[self.__dict[name.lower()]]['frequency'])
 
     def get_num_connections(self, name_one, name_two):
         """
@@ -452,10 +454,11 @@ class TextParser:
         """
         if self.__graph is None:
             raise Exception("graph has not been initialized")
-        if name_one not in self.__dict or name_two not in self.__dict:
+        if name_one.lower() not in self.__dict or name_two.lower() not in self.__dict:
             # return 0 as either one or both names are not in the dict, making a connection impossible
             return 0
-        return int(self.__graph.get_edge_data(self.__dict[name_one], self.__dict[name_two])['frequency'])
+        return int(self.__graph.get_edge_data(self.__dict[name_one.lower()],
+                                              self.__dict[name_two.lower()])['frequency'])
 
     @property
     def get_num_characters(self):
@@ -490,11 +493,12 @@ class TextParser:
         """
         if self.__graph is None:
             raise Exception("graph has not been initialized")
-        elif name_one not in self.__dict or name_two not in self.__dict:
+        elif name_one.lower() not in self.__dict or name_two.lower() not in self.__dict:
             return []
         else:
             # num_path is a list of ints corresponding to node id's
-            num_path = nx.shortest_path(self.__graph, source=self.__dict[name_one], target=self.__dict[name_two],
+            num_path = nx.shortest_path(self.__graph, source=self.__dict[name_one.lower()],
+                                        target=self.__dict[name_two.lower()],
                                         weight=None)
             # path is the names corresponding to the node id's in num_path
             path = [self.__graph.node[i]['name'] for i in num_path]
