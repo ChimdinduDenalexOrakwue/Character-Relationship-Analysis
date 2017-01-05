@@ -394,7 +394,7 @@ class TextParser:
                     "Something", "Thou", "Why", "New", "Maybe", "Yes", "OFF", "ON", "Almost", "Nor", "Many",
                     "Most", "Instantly", "Thing", "Things", "Nearby", "Stay", "Out", "Always", "Somebody",
                     "Sure", "Everybody", "Done", "With", "Get", "Ever", "Already", "Often", "HE", "WOULD",
-                    "Whatever", "Ending", "Tonight", "Thank", "Go", "THE"])
+                    "Whatever", "Ending", "Tonight", "Thank", "Go", "THE", "Beyond"])
 
             # remove the words in the omitted set from the list of matches
             matches = [word for word in matches if word not in omitted]
