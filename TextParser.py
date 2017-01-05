@@ -291,11 +291,10 @@ class TextParser:
             name_list = frozenset([name.lower() for name in self.__character_list])
             location_list = frozenset([location.lower() for location in self.__location_list])
             object_list = frozenset([obj.lower() for obj in self.__object_list])
-            character_list = tuple(self.__character_list)
             for line in content:
-                self.__parse_line(line, name_list, location_list, object_list, character_list)
+                self.__parse_line(line, name_list, location_list, object_list)
 
-    def __parse_line(self, line, name_list, location_list, object_list, character_list):
+    def __parse_line(self, line, name_list, location_list, object_list):
         """
         Parses the given line and creates connections between graph nodes
         :param line: line from file
