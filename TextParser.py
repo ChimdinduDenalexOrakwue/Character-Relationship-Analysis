@@ -302,7 +302,7 @@ class TextParser:
         :return: None
         """
         active = {}
-        delimiters = ",", " ", ".", "\n", ";", "; ", ": ", "\"", ", ", "!", "?"
+        delimiters = ",", " ", ".", "\n", ";", ":", "\"", "!", "?", "\\", "]", "[", "(", ")"
         regex_pattern = '|'.join(map(re.escape, delimiters))
         words = re.split(regex_pattern, line)
 
