@@ -87,6 +87,9 @@ class TextParser:
 
         return graph
 
+    def load_graph(self, file):
+        return
+
     def increment_name_frequency(self, name, amount=1):
         """
         Increments the frequency of a node in the graph.
@@ -311,7 +314,7 @@ class TextParser:
                 for active_name in active:
                     if active_name != current_name:
                         self.add_edge(active_name, current_name)
-                active[current_name] = 15
+                active[current_name] = 20
 
             elif current_word.lower() in location_list:
                 for i in range(0, len(self.__location_list)):
@@ -321,7 +324,7 @@ class TextParser:
                 for active_name in active:
                     if active_name != current_name:
                         self.add_edge(active_name, current_name)
-                active[current_name] = 40
+                active[current_name] = 45
 
             elif current_word.lower() in object_list:
                 for i in range(0, len(self.__object_list)):
@@ -393,7 +396,7 @@ class TextParser:
                     "Most", "Instantly", "Thing", "Things", "Nearby", "Stay", "Out", "Always", "Somebody", "Yet",
                     "Sure", "Everybody", "Done", "With", "Get", "Ever", "Already", "Often", "HE", "WOULD", "Way",
                     "Whatever", "Ending", "Tonight", "Thank", "Go", "THE", "Beyond", "ALL", "WHAT", "Anyone", "Yeah",
-                    "Stop", "Words", "Old", "Men", "Getting", "Dr", "People"])
+                    "Stop", "Words", "Old", "Men", "Getting", "Dr", "People", "THEY", "Whoever"])
 
             # remove the words in the omitted set from the list of matches
             matches = [word for word in matches if word not in omitted]
