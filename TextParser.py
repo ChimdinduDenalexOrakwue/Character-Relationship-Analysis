@@ -87,8 +87,15 @@ class TextParser:
 
         return graph
 
-    def load_graph(self, file):
-        return
+    def load_graph(self, file, label="label"):
+        """
+        Load graph from a gml file
+        :param file: path where gml file is located
+        :param label: label to name loaded nodes by
+        :return: graph
+        """
+        self.__graph = nx.read_gml(file, label=label)
+        return self.__graph
 
     def increment_name_frequency(self, name, amount=1):
         """
@@ -377,7 +384,7 @@ class TextParser:
 
             # loop through past_verbs and use regex expressions to create a list of matches
             for i in range(0, len(past_verbs)):
-                pattern = "[A-Z][\w]+ %s|%s [A-Z][\w]+" % (past_verbs[i], past_verbs[i])
+                pattern = "[A-Z][\w]+ {}|{} [A-Z][\w]+".format(past_verbs[i], past_verbs[i])
                 match = re.findall(pattern, lines)
                 for j in range(0, len(match)):
                     match[j] = match[j].replace(' ' + past_verbs[i], '')
@@ -497,31 +504,72 @@ class TextParser:
             path = [self.__graph.node[i]['name'] for i in num_path]
             return path
 
+    def get_degree_of_connection(self, name_one, name_two):
+        """
+        Returns the degree of the connection between two nodes
+        :param name_one: source node
+        :param name_two: destination node
+        :return: int
+        """
+        if self.__graph is None:
+            raise Exception("graph has not been initialized")
+        elif name_one.lower() not in self.__dict or name_two.lower() not in self.__dict:
+            return -1
+        else:
+            # num_path is a list of ints corresponding to node id's
+            num_path = nx.shortest_path(self.__graph, source=self.__dict[name_one.lower()],
+                                        target=self.__dict[name_two.lower()],
+                                        weight=None)
+            degree = len(num_path) - 2
+            if degree <= 0:
+                return -1
+            elif degree == -1:
+                return 1
+            else:
+                return degree
+
+    def get_degree_of_node(self, name):
+        """
+        Returns the degree of a node (how many adjacent edges it has).
+        :param name: name of the node
+        :return: int
+        """
+        if self.__graph is None:
+            raise Exception("graph has not been initialized")
+        elif name.lower() not in self.__dict:
+            return 0
+        else:
+            return int(self.__graph.degree(self.__dict[name.lower()]))
+
     @property
     def get_graph(self):
-        """Returns the graph.
-        :rtype: list
+        """
+        Returns the graph.
+        :return: list
         """
         return self.__graph
 
     @property
     def get_characters(self):
-        """Returns the character list.
-        :rtype: list
+        """
+        Returns the character list.
+        :return: list
         """
         return self.__character_list
 
     @property
     def get_locations(self):
-        """Returns the location list.
-        :rtype: list
+        """
+        Returns the location list.
+        :return: list
         """
         return self.__location_list
 
     @property
     def get_objects(self):
-        """Returns the object list.
-        :rtype: list
+        """
+        Returns the object list.
+        :return: list
         """
         return self.__object_list
 
@@ -541,11 +589,11 @@ class TextParser:
             raise Exception("graph has not been initialized")
 
         # assemble the path string
-        name = directory + '//' + name + '.' + form
+        name = "{}//{}.{}".format(directory, name, form)
 
         # append a compression format if necessary
         if compressed:
-            name += "." + compression_format
+            name = "{}.{}".format(name, compression_format)
 
         if form == 'gml':
             nx.write_gml(self.__graph, name)
