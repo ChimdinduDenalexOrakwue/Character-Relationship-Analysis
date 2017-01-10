@@ -1,4 +1,4 @@
-The Giver 
+ï»¿The Giver 
 
 Lois Lowry 
 
@@ -137,9 +137,9 @@ The Giver Page 4 of 182
 
 
 
-• Report book quality issue 
+â€¢ Report book quality issue 
 
-• See all reported book quality issues 
+â€¢ See all reported book quality issues 
 
 BEGIN CONTENT 
 
@@ -153,7 +153,7 @@ Houghton Mifflin Company Boston 1993
 
 
 
-Copyright© 1993 by Lois Lowry 
+CopyrightÂ© 1993 by Lois Lowry 
 
 All rights reserved. For information about permission to reproduce 
 selections from this book, write to Permissions, Houghton Mifflin 
@@ -968,7 +968,7 @@ members would become Elders by the time the rule change was
 made. 
 
 Rules were very hard to change. Sometimes, if it was a very 
-important rule-unlike the one governing the age for bicycles— it 
+important rule-unlike the one governing the age for bicyclesâ€” it 
 would have to go, eventually, to The Receiver for a decision. The 
 Receiver was the most important Elder. Jonas had never even 
 seen him, that he knew of; someone in a position of such 
@@ -4330,7 +4330,7 @@ own.
 He waited, but the man did not give the standard accepting-of- 
 apology response. 
 
-After a moment, Jonas went on, "But I thought—l mean I think," he 
+After a moment, Jonas went on, "But I thoughtâ€”l mean I think," he 
 corrected, reminding himself that if precision of language were ever 
 to be important, it was certainly important now, in the presence of 
 this man, "that you are the Receiver of Memory. I'm only, well, I was 
@@ -4778,7 +4778,7 @@ memory to you-l think it lightened me just a little."
 
 The man nodded, encouraging his question. 
 
-"Do you mean that now you don't have the memory of it — of that ride 
+"Do you mean that now you don't have the memory of it â€” of that ride 
 on the sled-anymore?" 
 
 
@@ -7980,7 +7980,7 @@ release?"
 "Do you mean my own release, or just the general topic of 
 release?" 
 
-"Both, I guess. I apologi— I mean I should have been more precise. 
+"Both, I guess. I apologiâ€” I mean I should have been more precise. 
 But I don't know exactly what I meant." 
 
 "Sit back up. No need to lie down while we're talking." Jonas, who 

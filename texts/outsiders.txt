@@ -1,4 +1,4 @@
-The Outsiders
+﻿The Outsiders
 S. E. Hinton
 According to Wikipedia, The Outsiders is a coming-of-age novel by S. E. Hinton, first
 published in 1967 by Viking Press. Hinton was 15 when she started writing the novel, but
@@ -1640,7 +1640,7 @@ was still fresh in my mind.
 The$Outsiders,"S.E."Hinton 67
 "Nature's first green is gold,
 Her hardest hue to hold.
-Her early leaf�s a flower;
+Her early leaf’s a flower;
 But only so an hour.
 Then leaf subsides to leaf.
 So Eden sank to grief,
