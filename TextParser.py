@@ -298,8 +298,7 @@ class TextParser:
         location_list = frozenset([location.lower() for location in self.__location_list])
         object_list = frozenset([obj.lower() for obj in self.__object_list])
         with open(self.__file, encoding="utf-8") as f:
-            content = f.readlines()
-            for line in content:
+            for line in f:
                 self.__parse_line(line, name_list, location_list, object_list)
 
     def __parse_line(self, line, name_list, location_list, object_list):
