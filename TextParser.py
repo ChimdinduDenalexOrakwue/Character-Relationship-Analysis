@@ -294,11 +294,11 @@ class TextParser:
         self.__dict = self.__initialize_dict()
 
         # open the file and parse each line
-        with open(self.__file) as f:
+        name_list = frozenset([name.lower() for name in self.__character_list])
+        location_list = frozenset([location.lower() for location in self.__location_list])
+        object_list = frozenset([obj.lower() for obj in self.__object_list])
+        with open(self.__file, encoding="utf-8") as f:
             content = f.readlines()
-            name_list = frozenset([name.lower() for name in self.__character_list])
-            location_list = frozenset([location.lower() for location in self.__location_list])
-            object_list = frozenset([obj.lower() for obj in self.__object_list])
             for line in content:
                 self.__parse_line(line, name_list, location_list, object_list)
 
@@ -359,25 +359,47 @@ class TextParser:
         :param file: path to file
         :return: list of detected characters
         """
-        with open(file) as f:
-            # list of past tense verbs used to detect characters
-            past_verbs = ("said", "shouted", "exclaimed", "remarked", "quipped", "whispered", "watched",
-                          'yelled', 'yelped', 'announced', 'muttered', 'asked', 'inquired', 'desired',
-                          'cried', "answered", 'interposed', 'interrupted', 'suggested', 'thought', 'might',
-                          'called', 'added', 'began', 'observed', 'echoed', 'repeated', 'shrugged', 'subtracted',
-                          'pointed', 'argued', 'promised', 'noted', 'mentioned', 'replied', 'wanted', 'put',
-                          'screamed', 'grumbled', 'stammered', 'screeched', 'questioned', 'pleaded', 'fell',
-                          'proclaimed', 'professed', 'moaned', 'spouted', 'surmised', 'murmured', 'appeared',
-                          'ranted', 'decided', 'demanded', 'stopped', 'voiced', 'urged', 'wept', 'rambled',
-                          'wailed', 'chuckled', 'chanted', 'boasted', 'coaxed', 'blurted', 'lectured', 'spent',
-                          'hinted', 'barked', 'rebuffed', 'kissed', 'ran', 'walked', 'swung', 'lifted', 'stood',
-                          'charged', 'sped', 'crept', 'restrained', 'droned', 'uttered', 'glided', 'loved',
-                          'took', 'yanked', 'collapsed', 'tumbled', 'crumpled', 'screeched', 'understood',
-                          'trudged', 'limped', 'hesitated', 'erupted', 'stampeded', 'created', 'started', 'gave',
-                          'created', 'initiated', 'ended', 'chided', 'reached', 'glanced', 'felt', 'believed',
-                          'turned', 'grew', 'became', 'fought', 'killed', 'went', 'will', 'shot', 'nodded',
-                          'fumed', 'tried', 'crouched', 'ordered', 'shuddered', 'ignored', 'grabbed',
-                          'countered', 'hoping', 'looked', 'made', 'closed', 'caught', 'gave')
+
+        # list of past tense verbs used to detect characters
+        past_verbs = ("said", "shouted", "exclaimed", "remarked", "quipped", "whispered", "watched",
+                      'yelled', 'yelped', 'announced', 'muttered', 'asked', 'inquired', 'desired',
+                      'cried', "answered", 'interposed', 'interrupted', 'suggested', 'thought', 'might',
+                      'called', 'added', 'began', 'observed', 'echoed', 'repeated', 'shrugged', 'subtracted',
+                      'pointed', 'argued', 'promised', 'noted', 'mentioned', 'replied', 'wanted', 'put',
+                      'screamed', 'grumbled', 'stammered', 'screeched', 'questioned', 'pleaded', 'fell',
+                      'proclaimed', 'professed', 'moaned', 'spouted', 'surmised', 'murmured', 'appeared',
+                      'ranted', 'decided', 'demanded', 'stopped', 'voiced', 'urged', 'wept', 'rambled',
+                      'wailed', 'chuckled', 'chanted', 'boasted', 'coaxed', 'blurted', 'lectured', 'spent',
+                      'hinted', 'barked', 'rebuffed', 'kissed', 'ran', 'walked', 'swung', 'lifted', 'stood',
+                      'charged', 'sped', 'crept', 'restrained', 'droned', 'uttered', 'glided', 'loved',
+                      'took', 'yanked', 'collapsed', 'tumbled', 'crumpled', 'screeched', 'understood',
+                      'trudged', 'limped', 'hesitated', 'erupted', 'stampeded', 'created', 'started', 'gave',
+                      'created', 'initiated', 'ended', 'chided', 'reached', 'glanced', 'felt', 'believed',
+                      'turned', 'grew', 'became', 'fought', 'killed', 'went', 'will', 'shot', 'nodded',
+                      'fumed', 'tried', 'crouched', 'ordered', 'shuddered', 'ignored', 'grabbed',
+                      'countered', 'hoping', 'looked', 'made', 'closed', 'caught', 'gave')
+
+        # words that are omitted from the list of detected characters
+        omitted = frozenset(["He", "She", "It", "They", "You", "Mr", "Mrs", "Miss", "Lord", "Just", "Everything",
+                             "Professor", "Uncle", "Aunt", "Then", 'We', 'When', 'If', 'Others', 'Some', "Only", "I",
+                             "Soon", "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not", "How", "More",
+                             "Me",
+                             "This", "The", "You", "Your", "Or", "My", "So", "Nearly", "Who", "YOU", "Another", "Very",
+                             "Having", "Everyone", "One", "No", "Someone", "All", "Both", "Never", "Nobody", "Of",
+                             "End",
+                             "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where", "Into",
+                             "IT",
+                             "Were", "Well", "Here", "Do", "Either", "There", "Now", "To", "As", "Anything", "These",
+                             "Something", "Thou", "Why", "New", "Maybe", "Yes", "OFF", "ON", "Almost", "Nor", "Many",
+                             "Those",
+                             "Most", "Instantly", "Thing", "Things", "Nearby", "Stay", "Out", "Always", "Somebody",
+                             "Yet",
+                             "Sure", "Everybody", "Done", "With", "Get", "Ever", "Already", "Often", "HE", "WOULD",
+                             "Way", "Whatever", "Ending", "Tonight", "Thank", "Go", "THE", "Beyond", "ALL", "WHAT", "Anyone",
+                             "Yeah", "Stop", "Words", "Old", "Men", "Getting", "Dr", "People", "THEY", "Whoever"])
+
+        with open(file, encoding="utf-8") as f:
+
             matches = set()
 
             # replace new line characters with spaces
@@ -385,6 +407,7 @@ class TextParser:
 
             # loop through past_verbs and use regex expressions to create a list of matches
             past_verbs_len = len(past_verbs)
+
             for i in range(0, past_verbs_len):
                 pattern = "[A-Z][\w]+ {}|{} [A-Z][\w]+".format(past_verbs[i], past_verbs[i])
                 match = re.findall(pattern, lines)
@@ -393,20 +416,6 @@ class TextParser:
                     match[j] = match[j].replace(' ' + past_verbs[i], '')
                     match[j] = match[j].replace(past_verbs[i] + ' ', '')
                 matches |= frozenset(match)
-
-            # words that are omitted from the list of detected characters
-            omitted = frozenset(["He", "She", "It", "They", "You", "Mr", "Mrs", "Miss", "Lord", "Just", "Everything",
-                    "Professor", "Uncle", "Aunt", "Then", 'We', 'When', 'If', 'Others', 'Some', "Only", "I", "Soon",
-                    "In", "And", "On", "An", "What", "His", "Her", "Have", "That", "But", "Not", "How", "More", "Me",
-                    "This", "The", "You", "Your", "Or", "My", "So", "Nearly", "Who", "YOU", "Another", "Very",
-                    "Having", "Everyone", "One", "No", "Someone", "All", "Both", "Never", "Nobody", "Of", "End",
-                    "Did", "Such", "At", "Other", "Their", "Our", "By", "Nothing", "Which", "Where", "Into", "IT",
-                    "Were", "Well", "Here", "Do", "Either", "There", "Now", "To", "As", "Anything", "These",
-                    "Something", "Thou", "Why", "New", "Maybe", "Yes", "OFF", "ON", "Almost", "Nor", "Many", "Those",
-                    "Most", "Instantly", "Thing", "Things", "Nearby", "Stay", "Out", "Always", "Somebody", "Yet",
-                    "Sure", "Everybody", "Done", "With", "Get", "Ever", "Already", "Often", "HE", "WOULD", "Way",
-                    "Whatever", "Ending", "Tonight", "Thank", "Go", "THE", "Beyond", "ALL", "WHAT", "Anyone", "Yeah",
-                    "Stop", "Words", "Old", "Men", "Getting", "Dr", "People", "THEY", "Whoever"])
 
             # remove the words in the omitted set from the list of matches
             matches = [word for word in matches if word not in omitted]
